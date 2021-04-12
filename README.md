@@ -1,0 +1,1 @@
+# netbsd-licheepi-zero
