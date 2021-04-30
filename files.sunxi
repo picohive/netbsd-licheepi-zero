@@ -238,6 +238,11 @@ device	h3codec
 attach	h3codec at fdt with h3_codec
 file	arch/arm/sunxi/sun8i_h3_codec.c		h3_codec needs-flag
 
+# V3s Audio codec (analog part)
+device	v3scodec
+attach	v3scodec at fdt with v3s_codec
+file	arch/arm/sunxi/sun8i_v3s_codec.c	h3_codec needs-flag
+
 # A64 Audio codec (analog part)
 device	a64acodec
 attach	a64acodec at fdt with a64_acodec

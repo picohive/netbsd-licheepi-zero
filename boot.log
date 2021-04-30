@@ -1,3 +1,10 @@
+U-Boot SPL 2018.11 (Mar 01 2021 - 17:48:11 +0800)
+DRAM: 64 MiB
+Trying to boot from MMC1
+
+
+U-Boot 2018.11 (Mar 01 2021 - 17:48:11 +0800) Allwinner Technology
+
 CPU:   Allwinner V3s (SUN8I 1681)
 Model: Lichee Pi Zero
 DRAM:  64 MiB
@@ -20,7 +27,7 @@ Found U-Boot script /boot.scr
 switch to partitions #0, OK
 mmc0 is current device
 Scanning mmc 0:1...
-11696 bytes read in 33 ms (345.7 KiB/s)
+12510 bytes read in 34 ms (358.4 KiB/s)
 Found EFI removable media binary efi/boot/bootarm.efi
 Scanning disks on usb...
 Disk usb0 not ready
@@ -35,10 +42,10 @@ Found 3 disks
 163248 bytes read in 15 ms (10.4 MiB/s)
 ## Starting EFI application at 41000000 ...
 
->> NetBSD/evbarm efiboot (arm), Revision 2.5 (Sun Apr  4 15:53:54 UTC 2021)
+>> NetBSD/evbarm efiboot (arm), Revision 2.5 (Sun Apr 18 13:59:23 UTC 2021)
 Press return to boot now, any other key for boot prompt
 booting netbsd - starting in 0 seconds.
-8537680+2328668+1406884 [434390+512416+544371]=0xd2c7f4
+8557976+2330524+1405028 [434961+512896+544838]=0xd2cde4
 [   1.0000000] NetBSD/evbarm (fdt) booting ...
 [   1.0000000] [ Kernel symbol table missing! ]
 [   1.0000000] Copyright (c) 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005,
@@ -47,10 +54,10 @@ booting netbsd - starting in 0 seconds.
 [   1.0000000] Copyright (c) 1982, 1986, 1989, 1991, 1993
 [   1.0000000]     The Regents of the University of California.  All rights reserved.
 
-[   1.0000000] NetBSD 9.99.81 (GENERIC) #6: Mon Apr  5 12:25:34 CST 2021
+[   1.0000000] NetBSD 9.99.81 (GENERIC) #13: Fri Apr 30 13:44:41 CST 2021
 [   1.0000000]  rxg@picohive:/usr/src/sys/arch/evbarm/compile/obj.evbarm/GENERIC
 [   1.0000000] total memory = 65536 KB
-[   1.0000000] avail memory = 47876 KB
+[   1.0000000] avail memory = 47868 KB
 [   1.0000000] armfdt0 (root)
 [   1.0000000] simplebus0 at armfdt0: Lichee Pi Zero
 [   1.0000000] simplebus1 at simplebus0
@@ -72,6 +79,8 @@ booting netbsd - starting in 0 seconds.
 [   1.0000000] gtmr0: interrupting on GIC irq 27
 [   1.0000000] armgtmr0 at gtmr0: Generic Timer (24000 kHz, virtual)
 [   1.0000030] sun8iv3sccu0 at simplebus1: V3s CCU
+[   1.0000030] sun6idma0 at simplebus1: DMA controller (8 channels)
+[   1.0000030] sun6idma0: interrupting on GIC irq 82
 [   1.0000030] com0 at simplebus1: DesignWare APB UART, no fifo
 [   1.0000030] com0: console
 [   1.0000030] com0: interrupting on GIC irq 32
@@ -83,6 +92,7 @@ booting netbsd - starting in 0 seconds.
 [   1.0000030] /soc/pinctrl@1c20800 at simplebus1 not configured
 [   1.0000030] /soc/phy@1c19400 at simplebus1 not configured
 [   1.0000030] sunxirtc0 at simplebus1: RTC
+[   1.0000030] v3scodec0 at simplebus1: V3s Audio Codec (analog part)
 [   1.0000030] sunximmc0 at simplebus1: SD/MMC controller
 [   1.0000030] sunximmc0: interrupting on GIC irq 92
 [   1.0000030] motg0 at simplebus1: 'otg' mode not supported
@@ -93,24 +103,24 @@ booting netbsd - starting in 0 seconds.
 [   1.0000030] /soc/timer@1c20c00 at simplebus1 not configured
 [   1.0000030] entropy: WARNING: extracting entropy too early
 [   1.0000030] sdmmc0 at sunximmc0
-[   1.2526526] sdmmc0: SD card status: 4-bit, C10, U1, V10
-[   1.2627085] ld0 at sdmmc0: <0x9f:0x5449:00000:0x00:0x00000384:0x12c>
-[   1.2627085] ld0: 30168 MB, 7661 cyl, 128 head, 63 sec, 512 bytes/sect x 61784064 sectors
-[   1.2827098] ld0: 4-bit width, High-Speed/SDR25, 50.000 MHz
-[   1.2927146] boot device: ld0
-[   1.2927146] root on ld0a dumps on ld0b
-[   1.3044774] root file system type: ffs
-[   1.3139720] kern.module.path=/stand/evbarm/9.99.81/modules
-[   1.3139720] WARNING: clock lost 7765 days
-[   1.3268634] WARNING: using filesystem time
-[   1.3309222] WARNING: CHECK AND RESET THE DATE!
-Mon Apr  5 04:35:19 UTC 2021
+[   1.2737902] sdmmc0: SD card status: 4-bit, C10, U1, V10
+[   1.2838697] ld0 at sdmmc0: <0x9f:0x5449:00000:0x00:0x00000384:0x12c>
+[   1.2838697] ld0: 30168 MB, 7661 cyl, 128 head, 63 sec, 512 bytes/sect x 61784064 sectors
+[   1.3038722] ld0: 4-bit width, High-Speed/SDR25, 50.000 MHz
+[   1.3138805] boot device: ld0
+[   1.3238763] root on ld0a dumps on ld0b
+[   1.3238763] root file system type: ffs
+[   1.3359292] kern.module.path=/stand/evbarm/9.99.81/modules
+[   1.3447673] WARNING: preposterous TOD clock time
+[   1.3447673] WARNING: using filesystem time
+[   1.3534876] WARNING: CHECK AND RESET THE DATE!
+Fri Apr 30 05:48:39 UTC 2021
 Starting root file system check:
 /dev/rld0a: file system is clean; not checking
 fdisk: Cannot determine the number of heads
 Not resizing / (/dev/ld0a): already correct size
 Starting file system checks:
-/dev/rld0e: 486 files, 32021 free (32021 clusters)
+/dev/rld0e: 486 files, 32016 free (32016 clusters)
 rndctl: no entropy in seed
 Setting tty flags.
 Setting sysctl variables:
@@ -136,10 +146,11 @@ Starting local daemons:.
 Updating motd.
 Starting ntpd.
 Starting sshd.
+Apr 30 05:48:47 armv7 ntpd[1020]: error resolving pool 2.netbsd.pool.ntp.org: Temporary failure in name resolution (2)
 Starting postfix.
 Starting inetd.
 Starting cron.
-Mon Apr  5 04:35:36 UTC 2021
+Fri Apr 30 05:48:54 UTC 2021
 
 NetBSD/evbarm (armv7) (constty)
 

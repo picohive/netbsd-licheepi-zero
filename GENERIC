@@ -426,6 +426,7 @@ a64acodec* 	at fdt?			# Allwinner A64 audio codec (analog part)
 aaci* 		at fdt?			# ARM PrimeCell AACI
 ausoc* 		at fdt?			# Simple SoC audio card
 h3codec* 	at fdt?			# Allwinner H3 audio codec (analog part)
+v3scodec* 	at fdt?			# Allwinner V3s audio codec (analog part)
 hdaudio* 	at fdt?			# Intel HDA
 hdafg* 		at hdaudiobus?
 options 	HDAUDIOVERBOSE
