@@ -1,0 +1,168 @@
+? arch/arm/sunxi/sun8i_v3s_ccu.c
+? arch/arm/sunxi/sun8i_v3s_ccu.h
+? arch/arm/sunxi/sun8i_v3s_codec.c
+Index: arch/arm/sunxi/files.sunxi
+===================================================================
+RCS file: /cvsroot/src/sys/arch/arm/sunxi/files.sunxi,v
+retrieving revision 1.68
+diff -u -r1.68 files.sunxi
+--- arch/arm/sunxi/files.sunxi	24 Mar 2020 22:09:50 -0000	1.68
++++ arch/arm/sunxi/files.sunxi	2 May 2021 14:04:50 -0000
+@@ -52,6 +52,11 @@
+ attach	sun8ih3rccu at fdt with sunxi_h3_r_ccu
+ file	arch/arm/sunxi/sun8i_h3_r_ccu.c		sunxi_h3_r_ccu
+ 
++# CCU (V3s)
++device	sun8iv3sccu: sunxi_ccu
++attach	sun8iv3sccu at fdt with sunxi_v3s_ccu
++file	arch/arm/sunxi/sun8i_v3s_ccu.c		sunxi_v3s_ccu
++
+ # CCU (A80)
+ device	sun9ia80ccu: sunxi_ccu
+ attach	sun9ia80ccu at fdt with sunxi_a80_ccu
+@@ -233,6 +238,11 @@
+ attach	h3codec at fdt with h3_codec
+ file	arch/arm/sunxi/sun8i_h3_codec.c		h3_codec needs-flag
+ 
++# V3s Audio codec (analog part)
++device	v3scodec
++attach	v3scodec at fdt with v3s_codec
++file	arch/arm/sunxi/sun8i_v3s_codec.c	h3_codec needs-flag
++
+ # A64 Audio codec (analog part)
+ device	a64acodec
+ attach	a64acodec at fdt with a64_acodec
+@@ -375,6 +385,7 @@
+ defflag	opt_soc.h			SOC_SUN8I: SOC_SUNXI
+ defflag	opt_soc.h			SOC_SUN8I_A83T: SOC_SUN8I, SOC_SUNXI_MC
+ defflag	opt_soc.h			SOC_SUN8I_H3: SOC_SUN8I
++defflag	opt_soc.h			SOC_SUN8I_V3S: SOC_SUN8I
+ defflag	opt_soc.h			SOC_SUN9I: SOC_SUNXI
+ defflag	opt_soc.h			SOC_SUN9I_A80: SOC_SUN9I, SOC_SUNXI_MC
+ defflag	opt_soc.h			SOC_SUN50I: SOC_SUNXI
+Index: arch/arm/sunxi/sun6i_dma.c
+===================================================================
+RCS file: /cvsroot/src/sys/arch/arm/sunxi/sun6i_dma.c,v
+retrieving revision 1.14
+diff -u -r1.14 sun6i_dma.c
+--- arch/arm/sunxi/sun6i_dma.c	27 Jan 2021 03:10:20 -0000	1.14
++++ arch/arm/sunxi/sun6i_dma.c	2 May 2021 14:04:50 -0000
+@@ -141,6 +141,16 @@
+ 	.widths = WIDTHS_1_2_4_8,
+ };
+ 
++static const struct sun6idma_config sun8i_v3s_dma_config = {
++	.num_channels = 8,
++	.autogate = true,
++	.autogate_reg = 0x20,
++	.autogate_mask = 0x4,
++	.burst_mask = __BITS(8,7),
++	.bursts = BURSTS_1_8,
++	.widths = WIDTHS_1_2_4,
++};
++
+ static const struct sun6idma_config sun50i_a64_dma_config = {
+ 	.num_channels = 8,
+ 	.autogate = true,
+@@ -158,6 +168,8 @@
+ 	  .data = &sun8i_a83t_dma_config },
+ 	{ .compat = "allwinner,sun8i-h3-dma",
+ 	  .data = &sun8i_h3_dma_config },
++	{ .compat = "allwinner,sun8i-v3s-dma",
++	  .data = &sun8i_v3s_dma_config },
+ 	{ .compat = "allwinner,sun50i-a64-dma",
+ 	  .data = &sun50i_a64_dma_config },
+ 
+Index: arch/arm/sunxi/sunxi_codec.h
+===================================================================
+RCS file: /cvsroot/src/sys/arch/arm/sunxi/sunxi_codec.h,v
+retrieving revision 1.6
+diff -u -r1.6 sunxi_codec.h
+--- arch/arm/sunxi/sunxi_codec.h	18 Jan 2021 02:35:49 -0000	1.6
++++ arch/arm/sunxi/sunxi_codec.h	2 May 2021 14:04:50 -0000
+@@ -118,9 +118,12 @@
+ 
+ #if NH3_CODEC > 0
+ extern const struct sunxi_codec_conf sun8i_h3_codecconf;
++extern const struct sunxi_codec_conf sun8i_v3s_codecconf;
+ #define	H3_CODEC_COMPATDATA						\
+ 	{ .compat = "allwinner,sun8i-h3-codec",				\
+-	  .data = &sun8i_h3_codecconf }
++	  .data = &sun8i_h3_codecconf },				\
++	{ .compat = "allwinner,sun8i-v3s-codec",			\
++	  .data = &sun8i_v3s_codecconf }
+ #else
+ #define	H3_CODEC_COMPATDATA
+ #endif
+Index: arch/evbarm/conf/GENERIC
+===================================================================
+RCS file: /cvsroot/src/sys/arch/evbarm/conf/GENERIC,v
+retrieving revision 1.95
+diff -u -r1.95 GENERIC
+--- arch/evbarm/conf/GENERIC	8 Mar 2021 06:31:42 -0000	1.95
++++ arch/evbarm/conf/GENERIC	2 May 2021 14:04:50 -0000
+@@ -140,6 +140,7 @@
+ sun8ia83tccu* 	at fdt? pass 2		# Allwinner A83T CCU
+ sun8ih3ccu* 	at fdt? pass 2		# Allwinner H3 CCU
+ sun8ih3rccu* 	at fdt? pass 2		# Allwinner H3 CCU (PRCM)
++sun8iv3sccu* 	at fdt? pass 2		# Allwinner V3s CCU
+ sun9ia80ccu* 	at fdt? pass 2		# Allwinner A80 CCU
+ sunxiresets* 	at fdt? pass 1		# Allwinner Misc. clock resets
+ sunxigates* 	at fdt? pass 1		# Allwinner Misc. clock gates
+@@ -425,6 +426,7 @@
+ aaci* 		at fdt?			# ARM PrimeCell AACI
+ ausoc* 		at fdt?			# Simple SoC audio card
+ h3codec* 	at fdt?			# Allwinner H3 audio codec (analog part)
++v3scodec* 	at fdt?			# Allwinner V3s audio codec (analog part)
+ hdaudio* 	at fdt?			# Intel HDA
+ hdafg* 		at hdaudiobus?
+ options 	HDAUDIOVERBOSE
+Index: external/gpl2/dts/dist/arch/arm/boot/dts/sun8i-v3s.dtsi
+===================================================================
+RCS file: /cvsroot/src/sys/external/gpl2/dts/dist/arch/arm/boot/dts/sun8i-v3s.dtsi,v
+retrieving revision 1.1.1.5
+diff -u -r1.1.1.5 sun8i-v3s.dtsi
+--- external/gpl2/dts/dist/arch/arm/boot/dts/sun8i-v3s.dtsi	3 Jan 2020 14:33:26 -0000	1.1.1.5
++++ external/gpl2/dts/dist/arch/arm/boot/dts/sun8i-v3s.dtsi	2 May 2021 14:04:51 -0000
+@@ -140,6 +140,15 @@
+ 			};
+ 		};
+ 
++		dma: dma-controller@01c02000 {
++			compatible = "allwinner,sun8i-v3s-dma";
++			reg = <0x01c02000 0x1000>;
++			interrupts = <GIC_SPI 50 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&ccu CLK_BUS_DMA>;
++			resets = <&ccu RST_BUS_DMA>;
++			#dma-cells = <1>;
++		};
++
+ 		tcon0: lcd-controller@1c0c000 {
+ 			compatible = "allwinner,sun8i-v3s-tcon";
+ 			reg = <0x01c0c000 0x1000>;
+@@ -349,6 +358,25 @@
+ 			status = "disabled";
+ 		};
+ 
++		codec: codec@01c22c00 {
++			#sound-dai-cells = <0>;
++			compatible = "allwinner,sun8i-v3s-codec";
++			reg = <0x01c22c00 0x400>;
++			interrupts = <GIC_SPI 29 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&ccu CLK_BUS_CODEC>, <&ccu CLK_AC_DIG>;
++			clock-names = "apb", "codec";
++			resets = <&ccu RST_BUS_CODEC>;
++			dmas = <&dma 15>, <&dma 15>;
++			dma-names = "rx", "tx";
++			allwinner,codec-analog-controls = <&codec_analog>;
++			status = "disabled";
++		};
++
++		codec_analog: codec-analog@01c23000 {
++			compatible = "allwinner,sun8i-v3s-codec-analog";
++			reg = <0x01c23000 0x4>;
++		};
++
+ 		uart0: serial@1c28000 {
+ 			compatible = "snps,dw-apb-uart";
+ 			reg = <0x01c28000 0x400>;
