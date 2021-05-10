@@ -8,3 +8,4 @@
 * /usr/src/sys/arch/arm/sunxi/sunxi_codec.h
 * /usr/src/sys/arch/evbarm/conf/GENERIC
 * /usr/src/sys/arch/arm/dts/sun8i-v3s-licheepi-zero.dts
+* /usr/src/sys/arch/arm/dts/sun8i-v3s.dtsi
