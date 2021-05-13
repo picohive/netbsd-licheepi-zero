@@ -5,9 +5,12 @@
 * /usr/src/sys/arch/arm/sunxi/sun8i_v3s_ccu.c
 * /usr/src/sys/arch/arm/sunxi/sun8i_v3s_ccu.h
 * /usr/src/sys/arch/arm/sunxi/sun8i_v3s_codec.c
+* /usr/src/sys/arch/arm/sunxi/sun8i_v3s_gpio.c
 * /usr/src/sys/arch/arm/sunxi/sunxi_codec.h
 * /usr/src/sys/arch/arm/sunxi/sunxi_de2_ccu.c
 * /usr/src/sys/arch/arm/sunxi/sunxi_drm.c
+* /usr/src/sys/arch/arm/sunxi/sunxi_gpio.c
+* /usr/src/sys/arch/arm/sunxi/sunxi_gpio.h
 * /usr/src/sys/arch/arm/sunxi/sunxi_lcdc.c
 * /usr/src/sys/arch/arm/sunxi/sunxi_mixer.c
 * /usr/src/sys/arch/arm/sunxi/sunxi_platform.c
