@@ -27,7 +27,7 @@ Found U-Boot script /boot.scr
 switch to partitions #0, OK
 mmc0 is current device
 Scanning mmc 0:1...
-12510 bytes read in 34 ms (358.4 KiB/s)
+14830 bytes read in 36 ms (401.4 KiB/s)
 Found EFI removable media binary efi/boot/bootarm.efi
 Scanning disks on usb...
 Disk usb0 not ready
@@ -39,13 +39,13 @@ MMC Device 1 not found
 MMC Device 2 not found
 MMC Device 3 not found
 Found 3 disks
-163248 bytes read in 15 ms (10.4 MiB/s)
+167440 bytes read in 15 ms (10.6 MiB/s)
 ## Starting EFI application at 41000000 ...
 
->> NetBSD/evbarm efiboot (arm), Revision 2.5 (Sun Apr 18 13:59:23 UTC 2021)
+>> NetBSD/evbarm efiboot (arm), Revision 2.8 (Sun Jun  6 09:01:16 UTC 2021)
 Press return to boot now, any other key for boot prompt
 booting netbsd - starting in 0 seconds.
-8557976+2330524+1405028 [434961+512896+544838]=0xd2cde4
+8594244+2343708+1408228 [436508+515904+550763]=0xd436d0
 [   1.0000000] NetBSD/evbarm (fdt) booting ...
 [   1.0000000] [ Kernel symbol table missing! ]
 [   1.0000000] Copyright (c) 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005,
@@ -54,16 +54,16 @@ booting netbsd - starting in 0 seconds.
 [   1.0000000] Copyright (c) 1982, 1986, 1989, 1991, 1993
 [   1.0000000]     The Regents of the University of California.  All rights reserved.
 
-[   1.0000000] NetBSD 9.99.81 (GENERIC) #13: Fri Apr 30 13:44:41 CST 2021
+[   1.0000000] NetBSD 9.99.83 (GENERIC) #18: Sun Jun  6 22:36:02 CST 2021
 [   1.0000000]  rxg@picohive:/usr/src/sys/arch/evbarm/compile/obj.evbarm/GENERIC
 [   1.0000000] total memory = 65536 KB
-[   1.0000000] avail memory = 47868 KB
+[   1.0000000] avail memory = 47784 KB
 [   1.0000000] armfdt0 (root)
 [   1.0000000] simplebus0 at armfdt0: Lichee Pi Zero
 [   1.0000000] simplebus1 at simplebus0
 [   1.0000000] simplebus2 at simplebus0
-[   1.0000000] cpus0 at simplebus0
 [   1.0000000] simplebus3 at simplebus0
+[   1.0000000] cpus0 at simplebus0
 [   1.0000000] cpu0 at cpus0: Cortex-A7 r0p5 (Cortex V7A core)
 [   1.0000000] cpu0: DC enabled IC enabled WB enabled LABT branch prediction enabled
 [   1.0000000] cpu0: 32KB/32B 2-way L1 VIPT Instruction cache
@@ -75,10 +75,14 @@ booting netbsd - starting in 0 seconds.
 [   1.0000000] armgic0: 16 Priorities, 128 SPIs, 7 PPIs, 15 SGIs
 [   1.0000000] fclock0 at simplebus2: 24000000 Hz fixed clock (osc24M)
 [   1.0000000] fclock1 at simplebus2: 32768 Hz fixed clock (ext-osc32k)
+[   1.0000000] syscon0 at simplebus1: System Controller Registers
 [   1.0000000] gtmr0 at simplebus0: Generic Timer
 [   1.0000000] gtmr0: interrupting on GIC irq 27
 [   1.0000000] armgtmr0 at gtmr0: Generic Timer (24000 kHz, virtual)
 [   1.0000030] sun8iv3sccu0 at simplebus1: V3s CCU
+[   1.0000030] sunxigpio0 at simplebus1: PIO
+[   1.0000030] gpio0 at sunxigpio0: 52 pins
+[   1.0000030] sunxigpio0: interrupting on GIC irq 47
 [   1.0000030] sun6idma0 at simplebus1: DMA controller (8 channels)
 [   1.0000030] sun6idma0: interrupting on GIC irq 82
 [   1.0000030] com0 at simplebus1: DesignWare APB UART, no fifo
@@ -87,10 +91,9 @@ booting netbsd - starting in 0 seconds.
 [   1.0000030] fregulator0 at simplebus0: vcc3v3
 [   1.0000030] fregulator1 at simplebus0: vcc3v0
 [   1.0000030] fregulator2 at simplebus0: vcc5v0
+[   1.0000030] sunxiusbphy0 at simplebus1: USB PHY
 [   1.0000030] /soc/mixer@1100000 at simplebus1 not configured
 [   1.0000030] /soc/clock@1000000 at simplebus1 not configured
-[   1.0000030] /soc/pinctrl@1c20800 at simplebus1 not configured
-[   1.0000030] /soc/phy@1c19400 at simplebus1 not configured
 [   1.0000030] sunxirtc0 at simplebus1: RTC
 [   1.0000030] v3scodec0 at simplebus1: V3s Audio Codec (analog part)
 [   1.0000030] sunximmc0 at simplebus1: SD/MMC controller
@@ -98,29 +101,36 @@ booting netbsd - starting in 0 seconds.
 [   1.0000030] motg0 at simplebus1: 'otg' mode not supported
 [   1.0000030] sunxiwdt0 at simplebus1: Watchdog
 [   1.0000030] sunxiwdt0: default watchdog period is 16 seconds
+[   1.0000030] ehci0 at simplebus1: EHCI
+[   1.0000030] ehci0: interrupting on GIC irq 104
+[   1.0000030] ehci0: 1 companion controller, 1 port
+[   1.0000030] usb0 at ehci0: USB revision 2.0
+[   1.0000030] ohci0 at simplebus1: OHCI
+[   1.0000030] ohci0: interrupting on GIC irq 105
+[   1.0000030] ohci0: OHCI version 1.0
+[   1.0000030] usb1 at ohci0: USB revision 1.0
 [   1.0000030] psci0 at simplebus0: PSCI 0.1
-[   1.0000030] gpioleds0 at simplebus0:
+[   1.0000030] gpioleds0 at simplebus0: licheepi:blue:usr licheepi:green:usr licheepi:red:usr
 [   1.0000030] /soc/timer@1c20c00 at simplebus1 not configured
 [   1.0000030] entropy: WARNING: extracting entropy too early
 [   1.0000030] sdmmc0 at sunximmc0
-[   1.2737902] sdmmc0: SD card status: 4-bit, C10, U1, V10
-[   1.2838697] ld0 at sdmmc0: <0x9f:0x5449:00000:0x00:0x00000384:0x12c>
-[   1.2838697] ld0: 30168 MB, 7661 cyl, 128 head, 63 sec, 512 bytes/sect x 61784064 sectors
-[   1.3038722] ld0: 4-bit width, High-Speed/SDR25, 50.000 MHz
-[   1.3138805] boot device: ld0
-[   1.3238763] root on ld0a dumps on ld0b
-[   1.3238763] root file system type: ffs
-[   1.3359292] kern.module.path=/stand/evbarm/9.99.81/modules
-[   1.3447673] WARNING: preposterous TOD clock time
-[   1.3447673] WARNING: using filesystem time
-[   1.3534876] WARNING: CHECK AND RESET THE DATE!
-Fri Apr 30 05:48:39 UTC 2021
+[   1.4661195] uhub0 at usb0: NetBSD (0x0000) EHCI root hub (0x0000), class 9/0, rev 2.00/1.00, addr 1
+[   1.4761289] uhub1 at usb1: NetBSD (0x0000) OHCI root hub (0x0000), class 9/0, rev 1.00/1.00, addr 1
+[   1.5561144] sdmmc0: SD card status: 4-bit, C10, U1, V10
+[   1.5662275] ld0 at sdmmc0: <0x9f:0x5449:00000:0x00:0x00000384:0x12c>
+[   1.5662275] ld0: 30168 MB, 7661 cyl, 128 head, 63 sec, 512 bytes/sect x 61784064 sectors
+[   1.5862265] ld0: 4-bit width, High-Speed/SDR25, 50.000 MHz
+[   2.2062562] boot device: ld0
+[   2.2062562] root on ld0a dumps on ld0b
+[   2.2162503] root file system type: ffs
+[   2.2162503] kern.module.path=/stand/evbarm/9.99.83/modules
+Sun Jun  6 14:57:09 UTC 2021
 Starting root file system check:
 /dev/rld0a: file system is clean; not checking
 fdisk: Cannot determine the number of heads
 Not resizing / (/dev/ld0a): already correct size
 Starting file system checks:
-/dev/rld0e: 486 files, 32016 free (32016 clusters)
+/dev/rld0e: 486 files, 31858 free (31858 clusters)
 rndctl: no entropy in seed
 Setting tty flags.
 Setting sysctl variables:
@@ -140,17 +150,18 @@ Clearing temporary files.
 Creating a.out runtime link editor directory cache.
 Checking quotas: done.
 Setting securelevel: kern.securelevel: 0 -> 1
+swapctl: /tmp/swap: No such file or directory
 Starting virecover.
 Starting devpubd.
 Starting local daemons:.
 Updating motd.
 Starting ntpd.
 Starting sshd.
-Apr 30 05:48:47 armv7 ntpd[1020]: error resolving pool 2.netbsd.pool.ntp.org: Temporary failure in name resolution (2)
+Jun  6 14:57:17 armv7 ntpd[795]: error resolving pool 2.netbsd.pool.ntp.org: Temporary failure in name resolution (2)
 Starting postfix.
 Starting inetd.
 Starting cron.
-Fri Apr 30 05:48:54 UTC 2021
+Sun Jun  6 14:57:26 UTC 2021
 
 NetBSD/evbarm (armv7) (constty)
 

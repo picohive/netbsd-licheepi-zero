@@ -1,168 +1,184 @@
-? arch/arm/sunxi/sun8i_v3s_ccu.c
-? arch/arm/sunxi/sun8i_v3s_ccu.h
-? arch/arm/sunxi/sun8i_v3s_codec.c
-Index: arch/arm/sunxi/files.sunxi
+? arm/dts/sun8i-v3s-licheepi-zero.dts
+? arm/dts/sun8i-v3s.dtsi
+? arm/sunxi/sun8i_v3s_gpio.c
+Index: arm/sunxi/files.sunxi
 ===================================================================
 RCS file: /cvsroot/src/sys/arch/arm/sunxi/files.sunxi,v
-retrieving revision 1.68
-diff -u -r1.68 files.sunxi
---- arch/arm/sunxi/files.sunxi	24 Mar 2020 22:09:50 -0000	1.68
-+++ arch/arm/sunxi/files.sunxi	2 May 2021 14:04:50 -0000
-@@ -52,6 +52,11 @@
- attach	sun8ih3rccu at fdt with sunxi_h3_r_ccu
- file	arch/arm/sunxi/sun8i_h3_r_ccu.c		sunxi_h3_r_ccu
- 
-+# CCU (V3s)
-+device	sun8iv3sccu: sunxi_ccu
-+attach	sun8iv3sccu at fdt with sunxi_v3s_ccu
-+file	arch/arm/sunxi/sun8i_v3s_ccu.c		sunxi_v3s_ccu
-+
- # CCU (A80)
- device	sun9ia80ccu: sunxi_ccu
- attach	sun9ia80ccu at fdt with sunxi_a80_ccu
-@@ -233,6 +238,11 @@
- attach	h3codec at fdt with h3_codec
- file	arch/arm/sunxi/sun8i_h3_codec.c		h3_codec needs-flag
- 
-+# V3s Audio codec (analog part)
-+device	v3scodec
-+attach	v3scodec at fdt with v3s_codec
-+file	arch/arm/sunxi/sun8i_v3s_codec.c	h3_codec needs-flag
-+
- # A64 Audio codec (analog part)
- device	a64acodec
- attach	a64acodec at fdt with a64_acodec
-@@ -375,6 +385,7 @@
- defflag	opt_soc.h			SOC_SUN8I: SOC_SUNXI
- defflag	opt_soc.h			SOC_SUN8I_A83T: SOC_SUN8I, SOC_SUNXI_MC
- defflag	opt_soc.h			SOC_SUN8I_H3: SOC_SUN8I
-+defflag	opt_soc.h			SOC_SUN8I_V3S: SOC_SUN8I
- defflag	opt_soc.h			SOC_SUN9I: SOC_SUNXI
- defflag	opt_soc.h			SOC_SUN9I_A80: SOC_SUN9I, SOC_SUNXI_MC
- defflag	opt_soc.h			SOC_SUN50I: SOC_SUNXI
-Index: arch/arm/sunxi/sun6i_dma.c
+retrieving revision 1.69
+diff -u -r1.69 files.sunxi
+--- arm/sunxi/files.sunxi	5 May 2021 10:24:04 -0000	1.69
++++ arm/sunxi/files.sunxi	12 Jun 2021 02:58:25 -0000
+@@ -136,6 +136,7 @@
+ file	arch/arm/sunxi/sun7i_a20_gpio.c		sunxi_gpio & soc_sun7i_a20
+ file	arch/arm/sunxi/sun8i_a83t_gpio.c	sunxi_gpio & soc_sun8i_a83t
+ file	arch/arm/sunxi/sun8i_h3_gpio.c		sunxi_gpio & soc_sun8i_h3
++file	arch/arm/sunxi/sun8i_v3s_gpio.c		sunxi_gpio & soc_sun8i_v3s
+ file	arch/arm/sunxi/sun9i_a80_gpio.c		sunxi_gpio & soc_sun9i_a80
+ file	arch/arm/sunxi/sun50i_a64_gpio.c	sunxi_gpio & soc_sun50i_a64
+ file	arch/arm/sunxi/sun50i_h6_gpio.c		sunxi_gpio & soc_sun50i_h6
+Index: arm/sunxi/sunxi_de2_ccu.c
 ===================================================================
-RCS file: /cvsroot/src/sys/arch/arm/sunxi/sun6i_dma.c,v
+RCS file: /cvsroot/src/sys/arch/arm/sunxi/sunxi_de2_ccu.c,v
+retrieving revision 1.7
+diff -u -r1.7 sunxi_de2_ccu.c
+--- arm/sunxi/sunxi_de2_ccu.c	27 Jan 2021 03:10:20 -0000	1.7
++++ arm/sunxi/sunxi_de2_ccu.c	12 Jun 2021 02:58:25 -0000
+@@ -100,6 +100,8 @@
+ static const struct device_compatible_entry compat_data[] = {
+ 	{ .compat = "allwinner,sun8i-h3-de2-clk",
+ 	  .data = &sun8i_h3_de2_config },
++	{ .compat = "allwinner,sun8i-v3s-de2-clk",
++	  .data = &sun8i_h3_de2_config },
+ 	{ .compat = "allwinner,sun50i-a64-de2-clk",
+ 	  .data = &sun50i_a64_de2_config },
+ 	{ .compat = "allwinner,sun50i-h5-de2-clk",
+Index: arm/sunxi/sunxi_drm.c
+===================================================================
+RCS file: /cvsroot/src/sys/arch/arm/sunxi/sunxi_drm.c,v
 retrieving revision 1.14
-diff -u -r1.14 sun6i_dma.c
---- arch/arm/sunxi/sun6i_dma.c	27 Jan 2021 03:10:20 -0000	1.14
-+++ arch/arm/sunxi/sun6i_dma.c	2 May 2021 14:04:50 -0000
-@@ -141,6 +141,16 @@
- 	.widths = WIDTHS_1_2_4_8,
+diff -u -r1.14 sunxi_drm.c
+--- arm/sunxi/sunxi_drm.c	24 Apr 2021 23:36:28 -0000	1.14
++++ arm/sunxi/sunxi_drm.c	12 Jun 2021 02:58:25 -0000
+@@ -66,6 +66,7 @@
+ 
+ static const struct device_compatible_entry compat_data[] = {
+ 	{ .compat = "allwinner,sun8i-h3-display-engine" },
++	{ .compat = "allwinner,sun8i-v3s-display-engine" },
+ 	{ .compat = "allwinner,sun50i-a64-display-engine" },
+ 	DEVICE_COMPAT_EOL
+ };
+Index: arm/sunxi/sunxi_gpio.c
+===================================================================
+RCS file: /cvsroot/src/sys/arch/arm/sunxi/sunxi_gpio.c,v
+retrieving revision 1.36
+diff -u -r1.36 sunxi_gpio.c
+--- arm/sunxi/sunxi_gpio.c	24 Apr 2021 23:36:28 -0000	1.36
++++ arm/sunxi/sunxi_gpio.c	12 Jun 2021 02:58:25 -0000
+@@ -111,6 +111,10 @@
+ 	{ .compat = "allwinner,sun8i-h3-r-pinctrl",
+ 	  .data = &sun8i_h3_r_padconf },
+ #endif
++#ifdef SOC_SUN8I_V3S
++	{ .compat = "allwinner,sun8i-v3s-pinctrl",
++	  .data = &sun8i_v3s_padconf },
++#endif
+ #ifdef SOC_SUN9I_A80
+ 	{ .compat = "allwinner,sun9i-a80-pinctrl",
+ 	  .data = &sun9i_a80_padconf },
+Index: arm/sunxi/sunxi_gpio.h
+===================================================================
+RCS file: /cvsroot/src/sys/arch/arm/sunxi/sunxi_gpio.h,v
+retrieving revision 1.9
+diff -u -r1.9 sunxi_gpio.h
+--- arm/sunxi/sunxi_gpio.h	27 May 2019 23:27:14 -0000	1.9
++++ arm/sunxi/sunxi_gpio.h	12 Jun 2021 02:58:25 -0000
+@@ -79,6 +79,10 @@
+ extern const struct sunxi_gpio_padconf sun8i_h3_r_padconf;
+ #endif
+ 
++#ifdef SOC_SUN8I_V3S
++extern const struct sunxi_gpio_padconf sun8i_v3s_padconf;
++#endif
++
+ #ifdef SOC_SUN9I_A80
+ extern const struct sunxi_gpio_padconf sun9i_a80_padconf;
+ extern const struct sunxi_gpio_padconf sun9i_a80_r_padconf;
+Index: arm/sunxi/sunxi_lcdc.c
+===================================================================
+RCS file: /cvsroot/src/sys/arch/arm/sunxi/sunxi_lcdc.c,v
+retrieving revision 1.12
+diff -u -r1.12 sunxi_lcdc.c
+--- arm/sunxi/sunxi_lcdc.c	27 Jan 2021 03:10:20 -0000	1.12
++++ arm/sunxi/sunxi_lcdc.c	12 Jun 2021 02:58:25 -0000
+@@ -108,6 +108,7 @@
+ 
+ static const struct device_compatible_entry compat_data[] = {
+ 	{ .compat = "allwinner,sun8i-h3-tcon-tv",	.value = TYPE_TCON1 },
++	{ .compat = "allwinner,sun8i-v3s-tcon",		.value = TYPE_TCON0 },
+ 	{ .compat = "allwinner,sun50i-a64-tcon-lcd",	.value = TYPE_TCON0 },
+ 	{ .compat = "allwinner,sun50i-a64-tcon-tv",	.value = TYPE_TCON1 },
+ 	DEVICE_COMPAT_EOL
+Index: arm/sunxi/sunxi_mixer.c
+===================================================================
+RCS file: /cvsroot/src/sys/arch/arm/sunxi/sunxi_mixer.c,v
+retrieving revision 1.16
+diff -u -r1.16 sunxi_mixer.c
+--- arm/sunxi/sunxi_mixer.c	27 Jan 2021 03:10:20 -0000	1.16
++++ arm/sunxi/sunxi_mixer.c	12 Jun 2021 02:58:25 -0000
+@@ -201,6 +201,8 @@
+ static const struct device_compatible_entry compat_data[] = {
+ 	{ .compat = "allwinner,sun8i-h3-de2-mixer-0",
+ 	  .data = &mixer0_data },
++	{ .compat = "allwinner,sun8i-v3s-de2-mixer",
++	  .data = &mixer0_data },
+ 	{ .compat = "allwinner,sun50i-a64-de2-mixer-0",
+ 	  .data = &mixer0_data },
+ 	{ .compat = "allwinner,sun50i-a64-de2-mixer-1",
+Index: arm/sunxi/sunxi_platform.c
+===================================================================
+RCS file: /cvsroot/src/sys/arch/arm/sunxi/sunxi_platform.c,v
+retrieving revision 1.43
+diff -u -r1.43 sunxi_platform.c
+--- arm/sunxi/sunxi_platform.c	24 Apr 2021 23:36:28 -0000	1.43
++++ arm/sunxi/sunxi_platform.c	12 Jun 2021 02:58:25 -0000
+@@ -469,6 +469,7 @@
+ 
+ ARM_PLATFORM(sun8i_h2plus, "allwinner,sun8i-h2-plus", &sun8i_platform);
+ ARM_PLATFORM(sun8i_h3, "allwinner,sun8i-h3", &sun8i_platform);
++ARM_PLATFORM(sun8i_v3s, "allwinner,sun8i-v3s", &sun8i_platform);
+ 
+ static const struct arm_platform sun8i_a83t_platform = {
+ 	.ap_devmap = sun8i_a83t_platform_devmap,
+Index: arm/sunxi/sunxi_sramc.c
+===================================================================
+RCS file: /cvsroot/src/sys/arch/arm/sunxi/sunxi_sramc.c,v
+retrieving revision 1.11
+diff -u -r1.11 sunxi_sramc.c
+--- arm/sunxi/sunxi_sramc.c	27 Jan 2021 03:10:20 -0000	1.11
++++ arm/sunxi/sunxi_sramc.c	12 Jun 2021 02:58:25 -0000
+@@ -47,6 +47,7 @@
+ 	{ .compat = "allwinner,sun4i-a10-sram-controller" },
+ 	{ .compat = "allwinner,sun4i-a10-system-control" },
+ 	{ .compat = "allwinner,sun8i-h3-system-control" },
++	{ .compat = "allwinner,sun8i-v3s-system-control" },
+ 	{ .compat = "allwinner,sun50i-a64-system-control" },
+ 	{ .compat = "allwinner,sun50i-h5-system-control" },
+ 	{ .compat = "allwinner,sun50i-h6-system-control" },
+Index: arm/sunxi/sunxi_usbphy.c
+===================================================================
+RCS file: /cvsroot/src/sys/arch/arm/sunxi/sunxi_usbphy.c,v
+retrieving revision 1.16
+diff -u -r1.16 sunxi_usbphy.c
+--- arm/sunxi/sunxi_usbphy.c	27 Jan 2021 03:10:20 -0000	1.16
++++ arm/sunxi/sunxi_usbphy.c	12 Jun 2021 02:58:25 -0000
+@@ -82,6 +82,7 @@
+ 	USBPHY_A83T,
+ 	USBPHY_H3,
+ 	USBPHY_H6,
++	USBPHY_V3S,
  };
  
-+static const struct sun6idma_config sun8i_v3s_dma_config = {
-+	.num_channels = 8,
-+	.autogate = true,
-+	.autogate_reg = 0x20,
-+	.autogate_mask = 0x4,
-+	.burst_mask = __BITS(8,7),
-+	.bursts = BURSTS_1_8,
-+	.widths = WIDTHS_1_2_4,
-+};
-+
- static const struct sun6idma_config sun50i_a64_dma_config = {
- 	.num_channels = 8,
- 	.autogate = true,
-@@ -158,6 +168,8 @@
- 	  .data = &sun8i_a83t_dma_config },
- 	{ .compat = "allwinner,sun8i-h3-dma",
- 	  .data = &sun8i_h3_dma_config },
-+	{ .compat = "allwinner,sun8i-v3s-dma",
-+	  .data = &sun8i_v3s_dma_config },
- 	{ .compat = "allwinner,sun50i-a64-dma",
- 	  .data = &sun50i_a64_dma_config },
- 
-Index: arch/arm/sunxi/sunxi_codec.h
-===================================================================
-RCS file: /cvsroot/src/sys/arch/arm/sunxi/sunxi_codec.h,v
-retrieving revision 1.6
-diff -u -r1.6 sunxi_codec.h
---- arch/arm/sunxi/sunxi_codec.h	18 Jan 2021 02:35:49 -0000	1.6
-+++ arch/arm/sunxi/sunxi_codec.h	2 May 2021 14:04:50 -0000
-@@ -118,9 +118,12 @@
- 
- #if NH3_CODEC > 0
- extern const struct sunxi_codec_conf sun8i_h3_codecconf;
-+extern const struct sunxi_codec_conf sun8i_v3s_codecconf;
- #define	H3_CODEC_COMPATDATA						\
- 	{ .compat = "allwinner,sun8i-h3-codec",				\
--	  .data = &sun8i_h3_codecconf }
-+	  .data = &sun8i_h3_codecconf },				\
-+	{ .compat = "allwinner,sun8i-v3s-codec",			\
-+	  .data = &sun8i_v3s_codecconf }
- #else
- #define	H3_CODEC_COMPATDATA
- #endif
-Index: arch/evbarm/conf/GENERIC
+ static const struct device_compatible_entry compat_data[] = {
+@@ -91,6 +92,7 @@
+ 	{ .compat = "allwinner,sun7i-a20-usb-phy",	.value = USBPHY_A20 },
+ 	{ .compat = "allwinner,sun8i-a83t-usb-phy",	.value = USBPHY_A83T },
+ 	{ .compat = "allwinner,sun8i-h3-usb-phy",	.value = USBPHY_H3 },
++	{ .compat = "allwinner,sun8i-v3s-usb-phy",	.value = USBPHY_V3S },
+ 	{ .compat = "allwinner,sun50i-a64-usb-phy",	.value = USBPHY_A64 },
+ 	{ .compat = "allwinner,sun50i-h6-usb-phy",	.value = USBPHY_H6 },
+ 	DEVICE_COMPAT_EOL
+Index: evbarm/conf/GENERIC
 ===================================================================
 RCS file: /cvsroot/src/sys/arch/evbarm/conf/GENERIC,v
-retrieving revision 1.95
-diff -u -r1.95 GENERIC
---- arch/evbarm/conf/GENERIC	8 Mar 2021 06:31:42 -0000	1.95
-+++ arch/evbarm/conf/GENERIC	2 May 2021 14:04:50 -0000
-@@ -140,6 +140,7 @@
- sun8ia83tccu* 	at fdt? pass 2		# Allwinner A83T CCU
- sun8ih3ccu* 	at fdt? pass 2		# Allwinner H3 CCU
- sun8ih3rccu* 	at fdt? pass 2		# Allwinner H3 CCU (PRCM)
-+sun8iv3sccu* 	at fdt? pass 2		# Allwinner V3s CCU
- sun9ia80ccu* 	at fdt? pass 2		# Allwinner A80 CCU
- sunxiresets* 	at fdt? pass 1		# Allwinner Misc. clock resets
- sunxigates* 	at fdt? pass 1		# Allwinner Misc. clock gates
-@@ -425,6 +426,7 @@
- aaci* 		at fdt?			# ARM PrimeCell AACI
- ausoc* 		at fdt?			# Simple SoC audio card
- h3codec* 	at fdt?			# Allwinner H3 audio codec (analog part)
-+v3scodec* 	at fdt?			# Allwinner V3s audio codec (analog part)
- hdaudio* 	at fdt?			# Intel HDA
- hdafg* 		at hdaudiobus?
- options 	HDAUDIOVERBOSE
-Index: external/gpl2/dts/dist/arch/arm/boot/dts/sun8i-v3s.dtsi
-===================================================================
-RCS file: /cvsroot/src/sys/external/gpl2/dts/dist/arch/arm/boot/dts/sun8i-v3s.dtsi,v
-retrieving revision 1.1.1.5
-diff -u -r1.1.1.5 sun8i-v3s.dtsi
---- external/gpl2/dts/dist/arch/arm/boot/dts/sun8i-v3s.dtsi	3 Jan 2020 14:33:26 -0000	1.1.1.5
-+++ external/gpl2/dts/dist/arch/arm/boot/dts/sun8i-v3s.dtsi	2 May 2021 14:04:51 -0000
-@@ -140,6 +140,15 @@
- 			};
- 		};
- 
-+		dma: dma-controller@01c02000 {
-+			compatible = "allwinner,sun8i-v3s-dma";
-+			reg = <0x01c02000 0x1000>;
-+			interrupts = <GIC_SPI 50 IRQ_TYPE_LEVEL_HIGH>;
-+			clocks = <&ccu CLK_BUS_DMA>;
-+			resets = <&ccu RST_BUS_DMA>;
-+			#dma-cells = <1>;
-+		};
-+
- 		tcon0: lcd-controller@1c0c000 {
- 			compatible = "allwinner,sun8i-v3s-tcon";
- 			reg = <0x01c0c000 0x1000>;
-@@ -349,6 +358,25 @@
- 			status = "disabled";
- 		};
- 
-+		codec: codec@01c22c00 {
-+			#sound-dai-cells = <0>;
-+			compatible = "allwinner,sun8i-v3s-codec";
-+			reg = <0x01c22c00 0x400>;
-+			interrupts = <GIC_SPI 29 IRQ_TYPE_LEVEL_HIGH>;
-+			clocks = <&ccu CLK_BUS_CODEC>, <&ccu CLK_AC_DIG>;
-+			clock-names = "apb", "codec";
-+			resets = <&ccu RST_BUS_CODEC>;
-+			dmas = <&dma 15>, <&dma 15>;
-+			dma-names = "rx", "tx";
-+			allwinner,codec-analog-controls = <&codec_analog>;
-+			status = "disabled";
-+		};
-+
-+		codec_analog: codec-analog@01c23000 {
-+			compatible = "allwinner,sun8i-v3s-codec-analog";
-+			reg = <0x01c23000 0x4>;
-+		};
-+
- 		uart0: serial@1c28000 {
- 			compatible = "snps,dw-apb-uart";
- 			reg = <0x01c28000 0x400>;
+retrieving revision 1.97
+diff -u -r1.97 GENERIC
+--- evbarm/conf/GENERIC	5 May 2021 10:24:04 -0000	1.97
++++ evbarm/conf/GENERIC	12 Jun 2021 02:58:25 -0000
+@@ -25,6 +25,7 @@
+ options 	SOC_SUN7I_A20
+ options 	SOC_SUN8I_A83T
+ options 	SOC_SUN8I_H3
++options 	SOC_SUN8I_V3S
+ options 	SOC_SUN9I_A80
+ options 	SOC_TEGRA124
+ options 	SOC_VIRT
