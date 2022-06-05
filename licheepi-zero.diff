@@ -1,14 +1,12 @@
-? arm/dts/sun8i-v3s-licheepi-zero.dts
-? arm/dts/sun8i-v3s.dtsi
 ? arm/sunxi/sun8i_v3s_gpio.c
 Index: arm/sunxi/files.sunxi
 ===================================================================
 RCS file: /cvsroot/src/sys/arch/arm/sunxi/files.sunxi,v
-retrieving revision 1.69
-diff -u -r1.69 files.sunxi
---- arm/sunxi/files.sunxi	5 May 2021 10:24:04 -0000	1.69
-+++ arm/sunxi/files.sunxi	12 Jun 2021 02:58:25 -0000
-@@ -136,6 +136,7 @@
+retrieving revision 1.70
+diff -b -u -r1.70 files.sunxi
+--- arm/sunxi/files.sunxi	7 Nov 2021 17:13:12 -0000	1.70
++++ arm/sunxi/files.sunxi	14 Jun 2022 10:13:01 -0000
+@@ -137,6 +137,7 @@
  file	arch/arm/sunxi/sun7i_a20_gpio.c		sunxi_gpio & soc_sun7i_a20
  file	arch/arm/sunxi/sun8i_a83t_gpio.c	sunxi_gpio & soc_sun8i_a83t
  file	arch/arm/sunxi/sun8i_h3_gpio.c		sunxi_gpio & soc_sun8i_h3
@@ -20,9 +18,9 @@ Index: arm/sunxi/sunxi_de2_ccu.c
 ===================================================================
 RCS file: /cvsroot/src/sys/arch/arm/sunxi/sunxi_de2_ccu.c,v
 retrieving revision 1.7
-diff -u -r1.7 sunxi_de2_ccu.c
+diff -b -u -r1.7 sunxi_de2_ccu.c
 --- arm/sunxi/sunxi_de2_ccu.c	27 Jan 2021 03:10:20 -0000	1.7
-+++ arm/sunxi/sunxi_de2_ccu.c	12 Jun 2021 02:58:25 -0000
++++ arm/sunxi/sunxi_de2_ccu.c	14 Jun 2022 10:13:01 -0000
 @@ -100,6 +100,8 @@
  static const struct device_compatible_entry compat_data[] = {
  	{ .compat = "allwinner,sun8i-h3-de2-clk",
@@ -35,11 +33,11 @@ diff -u -r1.7 sunxi_de2_ccu.c
 Index: arm/sunxi/sunxi_drm.c
 ===================================================================
 RCS file: /cvsroot/src/sys/arch/arm/sunxi/sunxi_drm.c,v
-retrieving revision 1.14
-diff -u -r1.14 sunxi_drm.c
---- arm/sunxi/sunxi_drm.c	24 Apr 2021 23:36:28 -0000	1.14
-+++ arm/sunxi/sunxi_drm.c	12 Jun 2021 02:58:25 -0000
-@@ -66,6 +66,7 @@
+retrieving revision 1.24
+diff -b -u -r1.24 sunxi_drm.c
+--- arm/sunxi/sunxi_drm.c	21 Apr 2022 21:22:25 -0000	1.24
++++ arm/sunxi/sunxi_drm.c	14 Jun 2022 10:13:01 -0000
+@@ -69,6 +69,7 @@
  
  static const struct device_compatible_entry compat_data[] = {
  	{ .compat = "allwinner,sun8i-h3-display-engine" },
@@ -47,13 +45,28 @@ diff -u -r1.14 sunxi_drm.c
  	{ .compat = "allwinner,sun50i-a64-display-engine" },
  	DEVICE_COMPAT_EOL
  };
+Index: arm/sunxi/sunxi_emac.c
+===================================================================
+RCS file: /cvsroot/src/sys/arch/arm/sunxi/sunxi_emac.c,v
+retrieving revision 1.35
+diff -b -u -r1.35 sunxi_emac.c
+--- arm/sunxi/sunxi_emac.c	31 Dec 2021 14:25:22 -0000	1.35
++++ arm/sunxi/sunxi_emac.c	14 Jun 2022 10:13:01 -0000
+@@ -134,6 +134,7 @@
+ static const struct device_compatible_entry compat_data[] = {
+ 	{ .compat = "allwinner,sun8i-a83t-emac",	.value = EMAC_A83T },
+ 	{ .compat = "allwinner,sun8i-h3-emac",		.value = EMAC_H3 },
++	{ .compat = "allwinner,sun8i-v3s-emac",		.value = EMAC_H3 },
+ 	{ .compat = "allwinner,sun50i-a64-emac",	.value = EMAC_A64 },
+ 	{ .compat = "allwinner,sun50i-h6-emac",		.value = EMAC_H6 },
+ 	DEVICE_COMPAT_EOL
 Index: arm/sunxi/sunxi_gpio.c
 ===================================================================
 RCS file: /cvsroot/src/sys/arch/arm/sunxi/sunxi_gpio.c,v
-retrieving revision 1.36
-diff -u -r1.36 sunxi_gpio.c
---- arm/sunxi/sunxi_gpio.c	24 Apr 2021 23:36:28 -0000	1.36
-+++ arm/sunxi/sunxi_gpio.c	12 Jun 2021 02:58:25 -0000
+retrieving revision 1.37
+diff -b -u -r1.37 sunxi_gpio.c
+--- arm/sunxi/sunxi_gpio.c	7 Aug 2021 16:18:45 -0000	1.37
++++ arm/sunxi/sunxi_gpio.c	14 Jun 2022 10:13:01 -0000
 @@ -111,6 +111,10 @@
  	{ .compat = "allwinner,sun8i-h3-r-pinctrl",
  	  .data = &sun8i_h3_r_padconf },
@@ -69,9 +82,9 @@ Index: arm/sunxi/sunxi_gpio.h
 ===================================================================
 RCS file: /cvsroot/src/sys/arch/arm/sunxi/sunxi_gpio.h,v
 retrieving revision 1.9
-diff -u -r1.9 sunxi_gpio.h
+diff -b -u -r1.9 sunxi_gpio.h
 --- arm/sunxi/sunxi_gpio.h	27 May 2019 23:27:14 -0000	1.9
-+++ arm/sunxi/sunxi_gpio.h	12 Jun 2021 02:58:25 -0000
++++ arm/sunxi/sunxi_gpio.h	14 Jun 2022 10:13:01 -0000
 @@ -79,6 +79,10 @@
  extern const struct sunxi_gpio_padconf sun8i_h3_r_padconf;
  #endif
@@ -86,11 +99,11 @@ diff -u -r1.9 sunxi_gpio.h
 Index: arm/sunxi/sunxi_lcdc.c
 ===================================================================
 RCS file: /cvsroot/src/sys/arch/arm/sunxi/sunxi_lcdc.c,v
-retrieving revision 1.12
-diff -u -r1.12 sunxi_lcdc.c
---- arm/sunxi/sunxi_lcdc.c	27 Jan 2021 03:10:20 -0000	1.12
-+++ arm/sunxi/sunxi_lcdc.c	12 Jun 2021 02:58:25 -0000
-@@ -108,6 +108,7 @@
+retrieving revision 1.14
+diff -b -u -r1.14 sunxi_lcdc.c
+--- arm/sunxi/sunxi_lcdc.c	19 Dec 2021 11:01:10 -0000	1.14
++++ arm/sunxi/sunxi_lcdc.c	14 Jun 2022 10:13:01 -0000
+@@ -109,6 +109,7 @@
  
  static const struct device_compatible_entry compat_data[] = {
  	{ .compat = "allwinner,sun8i-h3-tcon-tv",	.value = TYPE_TCON1 },
@@ -101,11 +114,11 @@ diff -u -r1.12 sunxi_lcdc.c
 Index: arm/sunxi/sunxi_mixer.c
 ===================================================================
 RCS file: /cvsroot/src/sys/arch/arm/sunxi/sunxi_mixer.c,v
-retrieving revision 1.16
-diff -u -r1.16 sunxi_mixer.c
---- arm/sunxi/sunxi_mixer.c	27 Jan 2021 03:10:20 -0000	1.16
-+++ arm/sunxi/sunxi_mixer.c	12 Jun 2021 02:58:25 -0000
-@@ -201,6 +201,8 @@
+retrieving revision 1.18
+diff -b -u -r1.18 sunxi_mixer.c
+--- arm/sunxi/sunxi_mixer.c	19 Dec 2021 11:01:10 -0000	1.18
++++ arm/sunxi/sunxi_mixer.c	14 Jun 2022 10:13:01 -0000
+@@ -203,6 +203,8 @@
  static const struct device_compatible_entry compat_data[] = {
  	{ .compat = "allwinner,sun8i-h3-de2-mixer-0",
  	  .data = &mixer0_data },
@@ -117,11 +130,11 @@ diff -u -r1.16 sunxi_mixer.c
 Index: arm/sunxi/sunxi_platform.c
 ===================================================================
 RCS file: /cvsroot/src/sys/arch/arm/sunxi/sunxi_platform.c,v
-retrieving revision 1.43
-diff -u -r1.43 sunxi_platform.c
---- arm/sunxi/sunxi_platform.c	24 Apr 2021 23:36:28 -0000	1.43
-+++ arm/sunxi/sunxi_platform.c	12 Jun 2021 02:58:25 -0000
-@@ -469,6 +469,7 @@
+retrieving revision 1.45
+diff -b -u -r1.45 sunxi_platform.c
+--- arm/sunxi/sunxi_platform.c	31 Jul 2021 11:34:40 -0000	1.45
++++ arm/sunxi/sunxi_platform.c	14 Jun 2022 10:13:01 -0000
+@@ -490,6 +490,7 @@
  
  ARM_PLATFORM(sun8i_h2plus, "allwinner,sun8i-h2-plus", &sun8i_platform);
  ARM_PLATFORM(sun8i_h3, "allwinner,sun8i-h3", &sun8i_platform);
@@ -129,52 +142,29 @@ diff -u -r1.43 sunxi_platform.c
  
  static const struct arm_platform sun8i_a83t_platform = {
  	.ap_devmap = sun8i_a83t_platform_devmap,
-Index: arm/sunxi/sunxi_sramc.c
-===================================================================
-RCS file: /cvsroot/src/sys/arch/arm/sunxi/sunxi_sramc.c,v
-retrieving revision 1.11
-diff -u -r1.11 sunxi_sramc.c
---- arm/sunxi/sunxi_sramc.c	27 Jan 2021 03:10:20 -0000	1.11
-+++ arm/sunxi/sunxi_sramc.c	12 Jun 2021 02:58:25 -0000
-@@ -47,6 +47,7 @@
- 	{ .compat = "allwinner,sun4i-a10-sram-controller" },
- 	{ .compat = "allwinner,sun4i-a10-system-control" },
- 	{ .compat = "allwinner,sun8i-h3-system-control" },
-+	{ .compat = "allwinner,sun8i-v3s-system-control" },
- 	{ .compat = "allwinner,sun50i-a64-system-control" },
- 	{ .compat = "allwinner,sun50i-h5-system-control" },
- 	{ .compat = "allwinner,sun50i-h6-system-control" },
 Index: arm/sunxi/sunxi_usbphy.c
 ===================================================================
 RCS file: /cvsroot/src/sys/arch/arm/sunxi/sunxi_usbphy.c,v
 retrieving revision 1.16
-diff -u -r1.16 sunxi_usbphy.c
+diff -b -u -r1.16 sunxi_usbphy.c
 --- arm/sunxi/sunxi_usbphy.c	27 Jan 2021 03:10:20 -0000	1.16
-+++ arm/sunxi/sunxi_usbphy.c	12 Jun 2021 02:58:25 -0000
-@@ -82,6 +82,7 @@
- 	USBPHY_A83T,
- 	USBPHY_H3,
- 	USBPHY_H6,
-+	USBPHY_V3S,
- };
- 
- static const struct device_compatible_entry compat_data[] = {
-@@ -91,6 +92,7 @@
++++ arm/sunxi/sunxi_usbphy.c	14 Jun 2022 10:13:01 -0000
+@@ -91,6 +91,7 @@
  	{ .compat = "allwinner,sun7i-a20-usb-phy",	.value = USBPHY_A20 },
  	{ .compat = "allwinner,sun8i-a83t-usb-phy",	.value = USBPHY_A83T },
  	{ .compat = "allwinner,sun8i-h3-usb-phy",	.value = USBPHY_H3 },
-+	{ .compat = "allwinner,sun8i-v3s-usb-phy",	.value = USBPHY_V3S },
++	{ .compat = "allwinner,sun8i-v3s-usb-phy",	.value = USBPHY_H3 },
  	{ .compat = "allwinner,sun50i-a64-usb-phy",	.value = USBPHY_A64 },
  	{ .compat = "allwinner,sun50i-h6-usb-phy",	.value = USBPHY_H6 },
  	DEVICE_COMPAT_EOL
 Index: evbarm/conf/GENERIC
 ===================================================================
 RCS file: /cvsroot/src/sys/arch/evbarm/conf/GENERIC,v
-retrieving revision 1.97
-diff -u -r1.97 GENERIC
---- evbarm/conf/GENERIC	5 May 2021 10:24:04 -0000	1.97
-+++ evbarm/conf/GENERIC	12 Jun 2021 02:58:25 -0000
-@@ -25,6 +25,7 @@
+retrieving revision 1.107
+diff -b -u -r1.107 GENERIC
+--- evbarm/conf/GENERIC	2 Apr 2022 11:16:07 -0000	1.107
++++ evbarm/conf/GENERIC	14 Jun 2022 10:13:01 -0000
+@@ -26,6 +26,7 @@
  options 	SOC_SUN7I_A20
  options 	SOC_SUN8I_A83T
  options 	SOC_SUN8I_H3

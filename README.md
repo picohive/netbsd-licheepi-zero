@@ -9,13 +9,11 @@
 * /usr/src/sys/arch/arm/sunxi/sunxi_codec.h
 * /usr/src/sys/arch/arm/sunxi/sunxi_de2_ccu.c
 * /usr/src/sys/arch/arm/sunxi/sunxi_drm.c
+* /usr/src/sys/arch/arm/sunxi/sunxi_emac
 * /usr/src/sys/arch/arm/sunxi/sunxi_gpio.c
 * /usr/src/sys/arch/arm/sunxi/sunxi_gpio.h
 * /usr/src/sys/arch/arm/sunxi/sunxi_lcdc.c
 * /usr/src/sys/arch/arm/sunxi/sunxi_mixer.c
 * /usr/src/sys/arch/arm/sunxi/sunxi_platform.c
-* /usr/src/sys/arch/arm/sunxi/sunxi_sramc.c
 * /usr/src/sys/arch/arm/sunxi/sunxi_usbphy.c
 * /usr/src/sys/arch/evbarm/conf/GENERIC
-* /usr/src/sys/arch/arm/dts/sun8i-v3s-licheepi-zero.dts
-* /usr/src/sys/arch/arm/dts/sun8i-v3s.dtsi
