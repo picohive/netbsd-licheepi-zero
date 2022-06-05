@@ -1,9 +1,9 @@
-U-Boot SPL 2018.11 (Mar 01 2021 - 17:48:11 +0800)
+U-Boot SPL 2018.11 (Jun 05 2022 - 09:48:57 +0800)
 DRAM: 64 MiB
 Trying to boot from MMC1
 
 
-U-Boot 2018.11 (Mar 01 2021 - 17:48:11 +0800) Allwinner Technology
+U-Boot 2018.11 (Jun 05 2022 - 09:48:57 +0800) Allwinner Technology
 
 CPU:   Allwinner V3s (SUN8I 1681)
 Model: Lichee Pi Zero
@@ -14,7 +14,7 @@ Loading Environment from FAT... *** Warning - bad CRC, using default environment
 In:    serial@01c28000
 Out:   serial@01c28000
 Err:   serial@01c28000
-Net:   No ethernet found.
+Net:   eth-1: ethernet@1c30000
 starting USB...
 No controllers found
 Hit any key to stop autoboot:  0
@@ -27,7 +27,7 @@ Found U-Boot script /boot.scr
 switch to partitions #0, OK
 mmc0 is current device
 Scanning mmc 0:1...
-14830 bytes read in 36 ms (401.4 KiB/s)
+16704 bytes read in 36 ms (453.1 KiB/s)
 Found EFI removable media binary efi/boot/bootarm.efi
 Scanning disks on usb...
 Disk usb0 not ready
@@ -45,46 +45,48 @@ Found 3 disks
 >> NetBSD/evbarm efiboot (arm), Revision 2.8 (Sun Jun  6 09:01:16 UTC 2021)
 Press return to boot now, any other key for boot prompt
 booting netbsd - starting in 0 seconds.
-8594244+2343708+1408228 [436508+515904+550763]=0xd436d0
+9138460+2443488+1406752 [455666+757840+576969]=0xe21950
 [   1.0000000] NetBSD/evbarm (fdt) booting ...
 [   1.0000000] [ Kernel symbol table missing! ]
 [   1.0000000] Copyright (c) 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005,
 [   1.0000000]     2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017,
-[   1.0000000]     2018, 2019, 2020, 2021 The NetBSD Foundation, Inc.  All rights reserved.
+[   1.0000000]     2018, 2019, 2020, 2021, 2022
+[   1.0000000]     The NetBSD Foundation, Inc.  All rights reserved.
 [   1.0000000] Copyright (c) 1982, 1986, 1989, 1991, 1993
 [   1.0000000]     The Regents of the University of California.  All rights reserved.
 
-[   1.0000000] NetBSD 9.99.83 (GENERIC) #18: Sun Jun  6 22:36:02 CST 2021
-[   1.0000000]  rxg@picohive:/usr/src/sys/arch/evbarm/compile/obj.evbarm/GENERIC
+[   1.0000000] NetBSD 9.99.97 (GENERIC) #26: Sun Jun  5 14:47:02 CST 2022
+[   1.0000000]  rxg@picohive:/usr/builds/obj/sys/arch/evbarm/compile.evbarm/GENERIC
 [   1.0000000] total memory = 65536 KB
-[   1.0000000] avail memory = 47784 KB
+[   1.0000000] avail memory = 47168 KB
 [   1.0000000] armfdt0 (root)
-[   1.0000000] simplebus0 at armfdt0: Lichee Pi Zero
+[   1.0000000] simplebus0 at armfdt0: Lichee Pi Zero with Dock
 [   1.0000000] simplebus1 at simplebus0
 [   1.0000000] simplebus2 at simplebus0
 [   1.0000000] simplebus3 at simplebus0
 [   1.0000000] cpus0 at simplebus0
 [   1.0000000] cpu0 at cpus0: Cortex-A7 r0p5 (Cortex V7A core)
 [   1.0000000] cpu0: DC enabled IC enabled WB enabled LABT branch prediction enabled
-[   1.0000000] cpu0: 32KB/32B 2-way L1 VIPT Instruction cache
-[   1.0000000] cpu0: 32KB/64B 4-way write-back-locking-C L1 PIPT Data cache
-[   1.0000000] cpu0: 128KB/64B 8-way write-through L2 PIPT Unified cache
+[   1.0000000] cpu0: L1 32KB/32B 2-way (512 set) VIPT Instruction cache
+[   1.0000000] cpu0: L1 32KB/64B 4-way (128 set) write-back-locking-C PIPT Data cache
+[   1.0000000] cpu0: L2 128KB/64B 8-way (256 set) write-through PIPT Unified cache
 [   1.0000000] vfp0 at cpu0: NEON MPE (VFP 3.0+), rounding, NaN propagation, denormals
 [   1.0000000] gic0 at simplebus1: GIC
 [   1.0000000] armgic0 at gic0: Generic Interrupt Controller, 160 sources (150 valid)
 [   1.0000000] armgic0: 16 Priorities, 128 SPIs, 7 PPIs, 15 SGIs
 [   1.0000000] fclock0 at simplebus2: 24000000 Hz fixed clock (osc24M)
 [   1.0000000] fclock1 at simplebus2: 32768 Hz fixed clock (ext-osc32k)
-[   1.0000000] syscon0 at simplebus1: System Controller Registers
 [   1.0000000] gtmr0 at simplebus0: Generic Timer
 [   1.0000000] gtmr0: interrupting on GIC irq 27
 [   1.0000000] armgtmr0 at gtmr0: Generic Timer (24000 kHz, virtual)
 [   1.0000030] sun8iv3sccu0 at simplebus1: V3s CCU
+[   1.0000030] sunxinmi0 at simplebus1: NMI, NMI IRQ 32
 [   1.0000030] sunxigpio0 at simplebus1: PIO
 [   1.0000030] gpio0 at sunxigpio0: 52 pins
 [   1.0000030] sunxigpio0: interrupting on GIC irq 47
 [   1.0000030] sun6idma0 at simplebus1: DMA controller (8 channels)
 [   1.0000030] sun6idma0: interrupting on GIC irq 82
+[   1.0000030] sunxisramc0 at simplebus1: SRAM Controller
 [   1.0000030] com0 at simplebus1: DesignWare APB UART, no fifo
 [   1.0000030] com0: console
 [   1.0000030] com0: interrupting on GIC irq 32
@@ -92,45 +94,47 @@ booting netbsd - starting in 0 seconds.
 [   1.0000030] fregulator1 at simplebus0: vcc3v0
 [   1.0000030] fregulator2 at simplebus0: vcc5v0
 [   1.0000030] sunxiusbphy0 at simplebus1: USB PHY
-[   1.0000030] /soc/mixer@1100000 at simplebus1 not configured
 [   1.0000030] /soc/clock@1000000 at simplebus1 not configured
+[   1.0000030] /soc/mixer@1100000 at simplebus1 not configured
 [   1.0000030] sunxirtc0 at simplebus1: RTC
 [   1.0000030] v3scodec0 at simplebus1: V3s Audio Codec (analog part)
+[   1.0000030] emac0 at simplebus1: EMAC
+[   1.0000030] WARNING: system needs entropy for security; see entropy(7)
+[   1.0000030] emac0: Ethernet address f2:00:16:7b:d5:1c
+[   1.0000030] emac0: interrupting on GIC irq 114
+[   1.0000030] ukphy0 at emac0 phy 1: OUI 0x0088a0, model 0x0000, rev. 0
+[   1.0000030] ukphy0: 10baseT, 10baseT-FDX, 100baseTX, 100baseTX-FDX, auto
 [   1.0000030] sunximmc0 at simplebus1: SD/MMC controller
 [   1.0000030] sunximmc0: interrupting on GIC irq 92
+[   1.0000030] sunximmc1 at simplebus1: SD/MMC controller
+[   1.0000030] sunximmc1: interrupting on GIC irq 93
 [   1.0000030] motg0 at simplebus1: 'otg' mode not supported
 [   1.0000030] sunxiwdt0 at simplebus1: Watchdog
 [   1.0000030] sunxiwdt0: default watchdog period is 16 seconds
-[   1.0000030] ehci0 at simplebus1: EHCI
-[   1.0000030] ehci0: interrupting on GIC irq 104
-[   1.0000030] ehci0: 1 companion controller, 1 port
-[   1.0000030] usb0 at ehci0: USB revision 2.0
-[   1.0000030] ohci0 at simplebus1: OHCI
-[   1.0000030] ohci0: interrupting on GIC irq 105
-[   1.0000030] ohci0: OHCI version 1.0
-[   1.0000030] usb1 at ohci0: USB revision 1.0
+[   1.0000030] sunxilradc0 at simplebus1: LRADC, channel 0 enabled
+[   1.0000030] sunxilradc0: interrupting on GIC irq 62
 [   1.0000030] psci0 at simplebus0: PSCI 0.1
-[   1.0000030] gpioleds0 at simplebus0: licheepi:blue:usr licheepi:green:usr licheepi:red:usr
+[   1.0000030] /soc/crypto@1c15000 at simplebus1 not configured
 [   1.0000030] /soc/timer@1c20c00 at simplebus1 not configured
-[   1.0000030] entropy: WARNING: extracting entropy too early
 [   1.0000030] sdmmc0 at sunximmc0
-[   1.4661195] uhub0 at usb0: NetBSD (0x0000) EHCI root hub (0x0000), class 9/0, rev 2.00/1.00, addr 1
-[   1.4761289] uhub1 at usb1: NetBSD (0x0000) OHCI root hub (0x0000), class 9/0, rev 1.00/1.00, addr 1
-[   1.5561144] sdmmc0: SD card status: 4-bit, C10, U1, V10
-[   1.5662275] ld0 at sdmmc0: <0x9f:0x5449:00000:0x00:0x00000384:0x12c>
-[   1.5662275] ld0: 30168 MB, 7661 cyl, 128 head, 63 sec, 512 bytes/sect x 61784064 sectors
-[   1.5862265] ld0: 4-bit width, High-Speed/SDR25, 50.000 MHz
-[   2.2062562] boot device: ld0
-[   2.2062562] root on ld0a dumps on ld0b
-[   2.2162503] root file system type: ffs
-[   2.2162503] kern.module.path=/stand/evbarm/9.99.83/modules
-Sun Jun  6 14:57:09 UTC 2021
+[   1.0000030] sdmmc1 at sunximmc1
+[   1.3918907] sdmmc1: couldn't enable card: 60
+[   1.4018960] sdmmc0: SD card status: 4-bit, C10, U1, V10
+[   1.4122934] ld0 at sdmmc0: <0x9f:0x5449:00000:0x00:0x00000384:0x12c>
+[   1.4122934] ld0: 30168 MB, 7661 cyl, 128 head, 63 sec, 512 bytes/sect x 61784064 sectors
+[   1.4322946] ld0: 4-bit width, High-Speed/SDR25, 50.000 MHz
+[   1.4423101] WARNING: 1 error while detecting hardware; check system log.
+[   1.4522992] boot device: ld0
+[   1.4522992] root on ld0a dumps on ld0b
+[   1.4626445] root file system type: ffs
+[   1.4723043] kern.module.path=/stand/evbarm/9.99.97/modules
+Sun Jun  5 04:09:32 UTC 2022
 Starting root file system check:
 /dev/rld0a: file system is clean; not checking
 fdisk: Cannot determine the number of heads
 Not resizing / (/dev/ld0a): already correct size
 Starting file system checks:
-/dev/rld0e: 486 files, 31858 free (31858 clusters)
+/dev/rld0e: 486 files, 31856 free (31856 clusters)
 rndctl: no entropy in seed
 Setting tty flags.
 Setting sysctl variables:
@@ -150,18 +154,18 @@ Clearing temporary files.
 Creating a.out runtime link editor directory cache.
 Checking quotas: done.
 Setting securelevel: kern.securelevel: 0 -> 1
-swapctl: /tmp/swap: No such file or directory
 Starting virecover.
 Starting devpubd.
 Starting local daemons:.
 Updating motd.
 Starting ntpd.
 Starting sshd.
-Jun  6 14:57:17 armv7 ntpd[795]: error resolving pool 2.netbsd.pool.ntp.org: Temporary failure in name resolution (2)
+Jun  5 04:09:41 armv7 ntpd[602]: error resolving pool 2.netbsd.pool.ntp.org: Temporary failure in name resolution (2)
 Starting postfix.
+Jun  5 04:10:45 armv7 ntpd[602]: error resolving pool 2.netbsd.pool.ntp.org: Temporary failure in name resolution (2)
 Starting inetd.
 Starting cron.
-Sun Jun  6 14:57:26 UTC 2021
+Sun Jun  5 04:10:48 UTC 2022
 
 NetBSD/evbarm (armv7) (constty)
 
