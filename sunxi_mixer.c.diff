@@ -1,0 +1,11 @@
+Index: sys/arch/arm/sunxi/sunxi_mixer.c
+===================================================================
+RCS file: /cvsroot/src/sys/arch/arm/sunxi/sunxi_mixer.c,v
+retrieving revision 1.19
+diff -r1.19 sunxi_mixer.c
+55a56,58
+> #ifdef SOC_SUN8I_V3S
+> #define	SUNXI_MIXER_FREQ	150000000
+> #else
+56a60
+> #endif

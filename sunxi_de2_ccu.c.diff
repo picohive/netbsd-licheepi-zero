@@ -1,0 +1,31 @@
+Index: sys/arch/arm/sunxi/sunxi_de2_ccu.c
+===================================================================
+RCS file: /cvsroot/src/sys/arch/arm/sunxi/sunxi_de2_ccu.c,v
+retrieving revision 1.8
+diff -r1.8 sunxi_de2_ccu.c
+78a79,91
+> static struct sunxi_ccu_clk sun8i_v3s_de2_ccu_clks[] = {
+> 	SUNXI_CCU_GATE(DE2_CLK_BUS_MIXER0, "bus-mixer0", "bus", 0x04, 0),
+> 	SUNXI_CCU_GATE(DE2_CLK_BUS_WB, "bus-wb", "bus", 0x04, 2),
+> 
+> 	SUNXI_CCU_DIV(DE2_CLK_MIXER0_DIV, "mixer0-div", mod_parents,
+> 	    0x0c, __BITS(3,0), 0, SUNXI_CCU_DIV_SET_RATE_PARENT),
+> 	SUNXI_CCU_DIV(DE2_CLK_WB_DIV, "wb-div", mod_parents,
+> 	    0x0c, __BITS(11,8), 0, SUNXI_CCU_DIV_SET_RATE_PARENT),
+> 
+> 	SUNXI_CCU_GATE(DE2_CLK_MIXER0, "mixer0", "mixer0-div", 0x00, 0),
+> 	SUNXI_CCU_GATE(DE2_CLK_WB, "wb", "wb-div", 0x00, 2),
+> };
+> 
+92a106,112
+> static const struct sunxi_de2_ccu_config sun8i_v3s_de2_config = {
+> 	.resets = sun8i_h3_de2_ccu_resets,
+> 	.nresets = __arraycount(sun8i_h3_de2_ccu_resets),
+> 	.clks = sun8i_v3s_de2_ccu_clks,
+> 	.nclks = __arraycount(sun8i_v3s_de2_ccu_clks),
+> };
+> 
+104c124
+< 	  .data = &sun8i_h3_de2_config },
+---
+> 	  .data = &sun8i_v3s_de2_config },

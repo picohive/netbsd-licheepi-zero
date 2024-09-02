@@ -1,0 +1,12 @@
+Index: sys/arch/arm/sunxi/sunxi_pwm.c
+===================================================================
+RCS file: /cvsroot/src/sys/arch/arm/sunxi/sunxi_pwm.c,v
+retrieving revision 1.7
+diff -r1.7 sunxi_pwm.c
+58c58,59
+< 	PWM_A64 = 1,
+---
+> 	PWM_A20 = 1,
+> 	PWM_A64,
+61a63
+> 	{ .compat = "allwinner,sun7i-a20-pwm",	.value = PWM_A20 },

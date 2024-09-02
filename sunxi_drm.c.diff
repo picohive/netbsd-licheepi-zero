@@ -1,0 +1,12 @@
+Index: sys/arch/arm/sunxi/sunxi_drm.c
+===================================================================
+RCS file: /cvsroot/src/sys/arch/arm/sunxi/sunxi_drm.c,v
+retrieving revision 1.26
+diff -r1.26 sunxi_drm.c
+55a56,59
+> #ifdef SOC_SUN8I_V3S
+> #define	SUNXI_DRM_MAX_WIDTH	1024
+> #define	SUNXI_DRM_MAX_HEIGHT	1024
+> #else
+57a62
+> #endif

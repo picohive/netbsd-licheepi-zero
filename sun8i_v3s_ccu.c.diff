@@ -1,0 +1,34 @@
+Index: sys/arch/arm/sunxi/sun8i_v3s_ccu.c
+===================================================================
+RCS file: /cvsroot/src/sys/arch/arm/sunxi/sun8i_v3s_ccu.c,v
+retrieving revision 1.1
+diff -r1.1 sun8i_v3s_ccu.c
+4c4
+<  * Copyright (c) 2021 Rui-Xiang Guo
+---
+>  * Copyright (c) 2021,2024 Rui-Xiang Guo
+61a62
+> #define	CE_CLK_REG		0x09c
+124a126,127
+> static const char *ce_parents[] = { "hosc", "pll_periph0" };
+> static const char *de_parents[] = { "pll_video", "pll_periph0" };
+304a308,315
+> 	SUNXI_CCU_NM(V3S_CLK_CE, "ce", ce_parents,
+> 	    CE_CLK_REG,		/* reg */
+> 	    __BITS(17,16),	/* n */
+> 	    __BITS(3,0),	/* m */
+> 	    __BITS(25,24),	/* sel */
+> 	    __BIT(31),		/* enable */
+> 	    SUNXI_CCU_NM_POWER_OF_TWO|SUNXI_CCU_NM_ROUND_DOWN),
+> 
+315a327,333
+> 	SUNXI_CCU_DIV_GATE(V3S_CLK_DE, "de", de_parents,
+> 	    DE_CLK_REG,		/* reg */
+> 	    __BITS(3,0),	/* div */
+> 	    __BITS(26,24),	/* sel */
+> 	    __BIT(31),		/* enable */
+> 	    0),
+> 
+322a341,342
+> 	SUNXI_CCU_GATE(V3S_CLK_BUS_CE, "bus-ce", "ahb1",
+> 	    BUS_CLK_GATING_REG0, 5),

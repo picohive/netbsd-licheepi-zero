@@ -1,66 +1,30 @@
-U-Boot SPL 2018.11 (Jun 05 2022 - 09:48:57 +0800)
-DRAM: 64 MiB
-Trying to boot from MMC1
+  \\-__,------,___.
+   \\        __,---`  NetBSD/evbarm efiboot (arm)
+    \\       `---,_.  Revision 2.13 (Thu Mar 28 08:33:33 UTC 2024)
+     \\-,_____,.---`
+      \\
+       \\
+        \\
 
-
-U-Boot 2018.11 (Jun 05 2022 - 09:48:57 +0800) Allwinner Technology
-
-CPU:   Allwinner V3s (SUN8I 1681)
-Model: Lichee Pi Zero
-DRAM:  64 MiB
-MMC:   SUNXI SD/MMC: 0
-Loading Environment from FAT... *** Warning - bad CRC, using default environment
-
-In:    serial@01c28000
-Out:   serial@01c28000
-Err:   serial@01c28000
-Net:   eth-1: ethernet@1c30000
-starting USB...
-No controllers found
-Hit any key to stop autoboot:  0
-switch to partitions #0, OK
-mmc0 is current device
-Scanning mmc 0:1...
-Found U-Boot script /boot.scr
-201 bytes read in 2 ms (97.7 KiB/s)
-## Executing script at 41900000
-switch to partitions #0, OK
-mmc0 is current device
-Scanning mmc 0:1...
-16704 bytes read in 36 ms (453.1 KiB/s)
-Found EFI removable media binary efi/boot/bootarm.efi
-Scanning disks on usb...
-Disk usb0 not ready
-Disk usb1 not ready
-Disk usb2 not ready
-Disk usb3 not ready
-Scanning disks on mmc...
-MMC Device 1 not found
-MMC Device 2 not found
-MMC Device 3 not found
-Found 3 disks
-167440 bytes read in 15 ms (10.6 MiB/s)
-## Starting EFI application at 41000000 ...
-
->> NetBSD/evbarm efiboot (arm), Revision 2.8 (Sun Jun  6 09:01:16 UTC 2021)
 Press return to boot now, any other key for boot prompt
 booting netbsd - starting in 0 seconds.
-9138460+2443488+1406752 [455666+757840+576969]=0xe21950
+6508456+1889248+1256480 [385008+449856+496088]=0xa85648
 [   1.0000000] NetBSD/evbarm (fdt) booting ...
 [   1.0000000] [ Kernel symbol table missing! ]
-[   1.0000000] Copyright (c) 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005,
-[   1.0000000]     2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017,
-[   1.0000000]     2018, 2019, 2020, 2021, 2022
+[   1.0000000] Copyright (c) 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003,
+[   1.0000000]     2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013,
+[   1.0000000]     2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023,
+[   1.0000000]     2024
 [   1.0000000]     The NetBSD Foundation, Inc.  All rights reserved.
 [   1.0000000] Copyright (c) 1982, 1986, 1989, 1991, 1993
 [   1.0000000]     The Regents of the University of California.  All rights reserved.
 
-[   1.0000000] NetBSD 9.99.97 (GENERIC) #26: Sun Jun  5 14:47:02 CST 2022
-[   1.0000000]  rxg@picohive:/usr/builds/obj/sys/arch/evbarm/compile.evbarm/GENERIC
+[   1.0000000] NetBSD 10.0 (LICHEEPI_ZERO) #0: Mon Sep  2 17:51:48 CST 2024
+[   1.0000000]  rxg@picohive:/home/rxg/10.0/usr/obj.evbarm/sys/arch/evbarm/compile/LICHEEPI_ZERO
 [   1.0000000] total memory = 65536 KB
-[   1.0000000] avail memory = 47168 KB
+[   1.0000000] avail memory = 50388 KB
 [   1.0000000] armfdt0 (root)
-[   1.0000000] simplebus0 at armfdt0: Lichee Pi Zero with Dock
+[   1.0000000] simplebus0 at armfdt0: Lichee Pi Zero
 [   1.0000000] simplebus1 at simplebus0
 [   1.0000000] simplebus2 at simplebus0
 [   1.0000000] simplebus3 at simplebus0
@@ -79,94 +43,67 @@ booting netbsd - starting in 0 seconds.
 [   1.0000000] gtmr0 at simplebus0: Generic Timer
 [   1.0000000] gtmr0: interrupting on GIC irq 27
 [   1.0000000] armgtmr0 at gtmr0: Generic Timer (24000 kHz, virtual)
-[   1.0000030] sun8iv3sccu0 at simplebus1: V3s CCU
-[   1.0000030] sunxinmi0 at simplebus1: NMI, NMI IRQ 32
-[   1.0000030] sunxigpio0 at simplebus1: PIO
-[   1.0000030] gpio0 at sunxigpio0: 52 pins
-[   1.0000030] sunxigpio0: interrupting on GIC irq 47
-[   1.0000030] sun6idma0 at simplebus1: DMA controller (8 channels)
-[   1.0000030] sun6idma0: interrupting on GIC irq 82
-[   1.0000030] sunxisramc0 at simplebus1: SRAM Controller
-[   1.0000030] com0 at simplebus1: DesignWare APB UART, no fifo
-[   1.0000030] com0: console
-[   1.0000030] com0: interrupting on GIC irq 32
-[   1.0000030] fregulator0 at simplebus0: vcc3v3
-[   1.0000030] fregulator1 at simplebus0: vcc3v0
-[   1.0000030] fregulator2 at simplebus0: vcc5v0
-[   1.0000030] sunxiusbphy0 at simplebus1: USB PHY
-[   1.0000030] /soc/clock@1000000 at simplebus1 not configured
-[   1.0000030] /soc/mixer@1100000 at simplebus1 not configured
-[   1.0000030] sunxirtc0 at simplebus1: RTC
-[   1.0000030] v3scodec0 at simplebus1: V3s Audio Codec (analog part)
-[   1.0000030] emac0 at simplebus1: EMAC
-[   1.0000030] WARNING: system needs entropy for security; see entropy(7)
-[   1.0000030] emac0: Ethernet address f2:00:16:7b:d5:1c
-[   1.0000030] emac0: interrupting on GIC irq 114
-[   1.0000030] ukphy0 at emac0 phy 1: OUI 0x0088a0, model 0x0000, rev. 0
-[   1.0000030] ukphy0: 10baseT, 10baseT-FDX, 100baseTX, 100baseTX-FDX, auto
-[   1.0000030] sunximmc0 at simplebus1: SD/MMC controller
-[   1.0000030] sunximmc0: interrupting on GIC irq 92
-[   1.0000030] sunximmc1 at simplebus1: SD/MMC controller
-[   1.0000030] sunximmc1: interrupting on GIC irq 93
-[   1.0000030] motg0 at simplebus1: 'otg' mode not supported
-[   1.0000030] sunxiwdt0 at simplebus1: Watchdog
-[   1.0000030] sunxiwdt0: default watchdog period is 16 seconds
-[   1.0000030] sunxilradc0 at simplebus1: LRADC, channel 0 enabled
-[   1.0000030] sunxilradc0: interrupting on GIC irq 62
-[   1.0000030] psci0 at simplebus0: PSCI 0.1
-[   1.0000030] /soc/crypto@1c15000 at simplebus1 not configured
-[   1.0000030] /soc/timer@1c20c00 at simplebus1 not configured
-[   1.0000030] sdmmc0 at sunximmc0
-[   1.0000030] sdmmc1 at sunximmc1
-[   1.3918907] sdmmc1: couldn't enable card: 60
-[   1.4018960] sdmmc0: SD card status: 4-bit, C10, U1, V10
-[   1.4122934] ld0 at sdmmc0: <0x9f:0x5449:00000:0x00:0x00000384:0x12c>
-[   1.4122934] ld0: 30168 MB, 7661 cyl, 128 head, 63 sec, 512 bytes/sect x 61784064 sectors
-[   1.4322946] ld0: 4-bit width, High-Speed/SDR25, 50.000 MHz
-[   1.4423101] WARNING: 1 error while detecting hardware; check system log.
-[   1.4522992] boot device: ld0
-[   1.4522992] root on ld0a dumps on ld0b
-[   1.4626445] root file system type: ffs
-[   1.4723043] kern.module.path=/stand/evbarm/9.99.97/modules
-Sun Jun  5 04:09:32 UTC 2022
-Starting root file system check:
-/dev/rld0a: file system is clean; not checking
-fdisk: Cannot determine the number of heads
-Not resizing / (/dev/ld0a): already correct size
-Starting file system checks:
-/dev/rld0e: 486 files, 31856 free (31856 clusters)
-rndctl: no entropy in seed
-Setting tty flags.
-Setting sysctl variables:
-ddb.onpanic: 1 -> 0
-Starting network.
-Hostname: armv7
-IPv6 mode: host
-Configuring network interfaces:.
-Adding interface aliases:.
-Waiting for duplicate address detection to finish...
-Starting dhcpcd.
-Starting mdnsd.
-Building databases: dev, utmp, utmpx.
-Starting syslogd.
-Mounting all file systems...
-Clearing temporary files.
-Creating a.out runtime link editor directory cache.
-Checking quotas: done.
-Setting securelevel: kern.securelevel: 0 -> 1
-Starting virecover.
-Starting devpubd.
-Starting local daemons:.
-Updating motd.
-Starting ntpd.
-Starting sshd.
-Jun  5 04:09:41 armv7 ntpd[602]: error resolving pool 2.netbsd.pool.ntp.org: Temporary failure in name resolution (2)
-Starting postfix.
-Jun  5 04:10:45 armv7 ntpd[602]: error resolving pool 2.netbsd.pool.ntp.org: Temporary failure in name resolution (2)
-Starting inetd.
-Starting cron.
-Sun Jun  5 04:10:48 UTC 2022
-
-NetBSD/evbarm (armv7) (constty)
-
-login:
+[   1.0000040] sun8iv3sccu0 at simplebus1: V3s CCU
+[   1.0000040] sunxinmi0 at simplebus1: NMI, NMI IRQ 32
+[   1.0000040] sunxide2ccu0 at simplebus1: DE2 CCU
+[   1.0000040] sunxigpio0 at simplebus1: PIO
+[   1.0000040] gpio0 at sunxigpio0: 52 pins
+[   1.0000040] sunxigpio0: interrupting on GIC irq 47
+[   1.0000040] sunxipwm0 at simplebus1: PWM
+[   1.0000040] sun6idma0 at simplebus1: DMA controller (8 channels)
+[   1.0000040] sun6idma0: interrupting on GIC irq 82
+[   1.0000040] sunxisramc0 at simplebus1: SRAM Controller
+[   1.0000040] com0 at simplebus1: DesignWare APB UART, no fifo
+[   1.0000040] com0: console
+[   1.0000040] com0: interrupting on GIC irq 32
+[   1.0000040] fregulator0 at simplebus0: vcc3v3
+[   1.0000040] sunxidrm0 at simplebus0: Display Engine Pipeline
+[   1.0000040] fregulator1 at simplebus0: vcc3v0
+[   1.0000040] fregulator2 at simplebus0: vcc5v0
+[   1.0000040] sunxiusbphy0 at simplebus1: USB PHY
+[   1.0000040] sunximixer0 at simplebus1: Display Engine Mixer
+[   1.0000040] sunxilcdc0 at simplebus1: TCON0
+[   1.0000040] sunxilcdc0: interrupting on GIC irq 118
+[   1.0000040] panel0 at simplebus0: panel
+[   1.0000040] sunxirtc0 at simplebus1: RTC
+[   1.0000040] v3scodec0 at simplebus1: V3s Audio Codec (analog part)
+[   1.0000040] emac0 at simplebus1: EMAC
+[   1.0000040] WARNING: system needs entropy for security; see entropy(7)
+[   1.0000040] emac0: Ethernet address [_MAC_XXXXXXXXXX]
+[   1.0000040] emac0: interrupting on GIC irq 114
+[   1.0000040] ukphy0 at emac0 phy 1: OUI 0x0088a0, model 0x0000, rev. 0
+[   1.0000040] ukphy0: 10baseT, 10baseT-FDX, 100baseTX, 100baseTX-FDX, auto
+[   1.0000040] pwmbacklight0 at simplebus0: PWM Backlight, 0-100 (7 steps)
+[   1.0000040] sunximmc0 at simplebus1: SD/MMC controller
+[   1.0000040] sunximmc0: interrupting on GIC irq 92
+[   1.0000040] motg0 at simplebus1: 'otg' mode not supported
+[   1.0000040] sunxiwdt0 at simplebus1: Watchdog
+[   1.0000040] sunxiwdt0: default watchdog period is 16 seconds
+[   1.0000040] sunxicodec0 at simplebus1: V3s Audio Codec
+[   1.0000040] audio0 at sunxicodec0: playback, capture, full duplex, independent
+[   1.0000040] audio0: slinear_le:16 2ch 48000Hz, blk 1920 bytes (10ms) for playback
+[   1.0000040] audio0: slinear_le:16 2ch 48000Hz, blk 1920 bytes (10ms) for recording
+[   1.0000040] spkr0 at audio0: PC Speaker (synthesized)
+[   1.0000040] wsbell at spkr0 not configured
+[   1.0000040] psci0 at simplebus0: PSCI 0.1
+[   1.0000040] gpioleds0 at simplebus0: licheepi:blue:usr licheepi:green:usr licheepi:red:usr
+[   1.0000040] /soc/crypto@1c15000 at simplebus1 not configured
+[   1.0000040] /soc/timer@1c20c00 at simplebus1 not configured
+[   1.0000040] sunxidrm0: [drm] Cannot find any crtc or sizes
+[   1.0000040] [drm] Supports vblank timestamp caching Rev 2 (21.10.2013).
+[   1.0000040] [drm] No driver support for vblank timestamp query.
+[   1.0000040] [drm] Initialized sunxi 1.0.0 20190123 for sunxidrm0 on minor 0
+[   1.0000040] sunxidrm0: initialized sunxi 1.0.0 20190123 on minor 0
+[   1.0000040] sdmmc0 at sunximmc0
+[   1.4670972] sdmmc0: SD card status: 4-bit, C10, U1, V10
+[   1.4774035] ld0 at sdmmc0: <0x9f:0x5449:00000:0x00:0x00000384:0x12c>
+[   1.4774035] ld0: 30168 MB, 7661 cyl, 128 head, 63 sec, 512 bytes/sect x 61784064 sectors
+[   1.4937821] ld0: 4-bit width, High-Speed/SDR25, 50.000 MHz
+[   1.4999447] swwdog0: software watchdog initialized
+[   1.5099472] boot device: ld0
+[   1.5199428] root on ld0a dumps on ld0b
+[   1.5199428] root file system type: ffs
+[   1.5315814] kern.module.path=/stand/evbarm/10.0/modules
+[   1.5400076] WARNING: preposterous TOD clock time
+[   1.5400076] WARNING: using filesystem time
+[   1.5486668] WARNING: CHECK AND RESET THE DATE!
