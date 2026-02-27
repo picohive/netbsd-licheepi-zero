@@ -1,28 +1,7 @@
-  \\-__,------,___.
-   \\        __,---`  NetBSD/evbarm efiboot (arm)
-    \\       `---,_.  Revision 2.13 (Thu Mar 28 08:33:33 UTC 2024)
-     \\-,_____,.---`
-      \\
-       \\
-        \\
-
-Press return to boot now, any other key for boot prompt
-booting netbsd - starting in 0 seconds.
-6508456+1889248+1256480 [385008+449856+496088]=0xa85648
-[   1.0000000] NetBSD/evbarm (fdt) booting ...
-[   1.0000000] [ Kernel symbol table missing! ]
-[   1.0000000] Copyright (c) 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003,
-[   1.0000000]     2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013,
-[   1.0000000]     2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023,
-[   1.0000000]     2024
-[   1.0000000]     The NetBSD Foundation, Inc.  All rights reserved.
-[   1.0000000] Copyright (c) 1982, 1986, 1989, 1991, 1993
-[   1.0000000]     The Regents of the University of California.  All rights reserved.
-
-[   1.0000000] NetBSD 10.0 (LICHEEPI_ZERO) #0: Mon Sep  2 17:51:48 CST 2024
+[   1.0000000] NetBSD 10.0 (LICHEEPI_ZERO) #118: Fri Feb 27 17:35:20 CST 2026
 [   1.0000000]  rxg@picohive:/home/rxg/10.0/usr/obj.evbarm/sys/arch/evbarm/compile/LICHEEPI_ZERO
 [   1.0000000] total memory = 65536 KB
-[   1.0000000] avail memory = 50388 KB
+[   1.0000000] avail memory = 48920 KB
 [   1.0000000] armfdt0 (root)
 [   1.0000000] simplebus0 at armfdt0: Lichee Pi Zero
 [   1.0000000] simplebus1 at simplebus0
@@ -39,7 +18,7 @@ booting netbsd - starting in 0 seconds.
 [   1.0000000] armgic0 at gic0: Generic Interrupt Controller, 160 sources (150 valid)
 [   1.0000000] armgic0: 16 Priorities, 128 SPIs, 7 PPIs, 15 SGIs
 [   1.0000000] fclock0 at simplebus2: 24000000 Hz fixed clock (osc24M)
-[   1.0000000] fclock1 at simplebus2: 32768 Hz fixed clock (ext-osc32k)
+[   1.0000000] fclock1 at simplebus2: 32768 Hz fixed clock (osc32k)
 [   1.0000000] gtmr0 at simplebus0: Generic Timer
 [   1.0000000] gtmr0: interrupting on GIC irq 27
 [   1.0000000] armgtmr0 at gtmr0: Generic Timer (24000 kHz, virtual)
@@ -61,22 +40,26 @@ booting netbsd - starting in 0 seconds.
 [   1.0000040] fregulator1 at simplebus0: vcc3v0
 [   1.0000040] fregulator2 at simplebus0: vcc5v0
 [   1.0000040] sunxiusbphy0 at simplebus1: USB PHY
-[   1.0000040] sunximixer0 at simplebus1: Display Engine Mixer
+[   1.0000040] pwmbacklight0 at simplebus0: PWM Backlight, 0-100 (7 steps)
 [   1.0000040] sunxilcdc0 at simplebus1: TCON0
 [   1.0000040] sunxilcdc0: interrupting on GIC irq 118
+[   1.0000040] sunximixer0 at simplebus1: Display Engine Mixer
 [   1.0000040] panel0 at simplebus0: panel
-[   1.0000040] sunxirtc0 at simplebus1: RTC
 [   1.0000040] v3scodec0 at simplebus1: V3s Audio Codec (analog part)
 [   1.0000040] emac0 at simplebus1: EMAC
 [   1.0000040] WARNING: system needs entropy for security; see entropy(7)
-[   1.0000040] emac0: Ethernet address [_MAC_XXXXXXXXXX]
+[   1.0000040] emac0: Ethernet address f2:00:8e:a4:09:70
 [   1.0000040] emac0: interrupting on GIC irq 114
 [   1.0000040] ukphy0 at emac0 phy 1: OUI 0x0088a0, model 0x0000, rev. 0
 [   1.0000040] ukphy0: 10baseT, 10baseT-FDX, 100baseTX, 100baseTX-FDX, auto
-[   1.0000040] pwmbacklight0 at simplebus0: PWM Backlight, 0-100 (7 steps)
+[   1.0000040] psci0 at simplebus0: PSCI 0.1
+[   1.0000040] gpioleds0 at simplebus0: licheepi:blue:usr licheepi:green:usr licheepi:red:usr
 [   1.0000040] sunximmc0 at simplebus1: SD/MMC controller
 [   1.0000040] sunximmc0: interrupting on GIC irq 92
+[   1.0000040] /soc/crypto@1c15000 at simplebus1 not configured
 [   1.0000040] motg0 at simplebus1: 'otg' mode not supported
+[   1.0000040] sunxirtc0 at simplebus1: RTC
+[   1.0000040] /soc/timer@01c20c00 at simplebus1 not configured
 [   1.0000040] sunxiwdt0 at simplebus1: Watchdog
 [   1.0000040] sunxiwdt0: default watchdog period is 16 seconds
 [   1.0000040] sunxicodec0 at simplebus1: V3s Audio Codec
@@ -85,25 +68,23 @@ booting netbsd - starting in 0 seconds.
 [   1.0000040] audio0: slinear_le:16 2ch 48000Hz, blk 1920 bytes (10ms) for recording
 [   1.0000040] spkr0 at audio0: PC Speaker (synthesized)
 [   1.0000040] wsbell at spkr0 not configured
-[   1.0000040] psci0 at simplebus0: PSCI 0.1
-[   1.0000040] gpioleds0 at simplebus0: licheepi:blue:usr licheepi:green:usr licheepi:red:usr
-[   1.0000040] /soc/crypto@1c15000 at simplebus1 not configured
-[   1.0000040] /soc/timer@1c20c00 at simplebus1 not configured
-[   1.0000040] sunxidrm0: [drm] Cannot find any crtc or sizes
+[   1.0000040] sunxidrm0: reserved 6 MB DRAM for CMA
+[   1.0000040] sunxifb0 at sunxidrm0
 [   1.0000040] [drm] Supports vblank timestamp caching Rev 2 (21.10.2013).
 [   1.0000040] [drm] No driver support for vblank timestamp query.
 [   1.0000040] [drm] Initialized sunxi 1.0.0 20190123 for sunxidrm0 on minor 0
 [   1.0000040] sunxidrm0: initialized sunxi 1.0.0 20190123 on minor 0
+[   1.0000040] wsdisplay0 at sunxifb0 kbdmux 1: console (default, vt100 emulation)
 [   1.0000040] sdmmc0 at sunximmc0
-[   1.4670972] sdmmc0: SD card status: 4-bit, C10, U1, V10
-[   1.4774035] ld0 at sdmmc0: <0x9f:0x5449:00000:0x00:0x00000384:0x12c>
-[   1.4774035] ld0: 30168 MB, 7661 cyl, 128 head, 63 sec, 512 bytes/sect x 61784064 sectors
-[   1.4937821] ld0: 4-bit width, High-Speed/SDR25, 50.000 MHz
-[   1.4999447] swwdog0: software watchdog initialized
-[   1.5099472] boot device: ld0
-[   1.5199428] root on ld0a dumps on ld0b
-[   1.5199428] root file system type: ffs
-[   1.5315814] kern.module.path=/stand/evbarm/10.0/modules
-[   1.5400076] WARNING: preposterous TOD clock time
-[   1.5400076] WARNING: using filesystem time
-[   1.5486668] WARNING: CHECK AND RESET THE DATE!
+[   1.5579305] sdmmc0: SD card status: 4-bit, C10, U1, V10
+[   1.5690187] ld0 at sdmmc0: <0x9f:0x5449:00000:0x00:0x00000384:0x12c>
+[   1.5690187] ld0: 30168 MB, 7661 cyl, 128 head, 63 sec, 512 bytes/sect x 61784064 sectors
+[   1.5890180] ld0: 4-bit width, High-Speed/SDR25, 50.000 MHz
+[   1.5998831] swwdog0: software watchdog initialized
+[   1.6090243] boot device: ld0
+[   1.6090243] root on ld0a dumps on ld0b
+[   1.6290267] root file system type: ffs
+[   1.6290267] kern.module.path=/stand/evbarm/10.0/modules
+[   1.6437496] WARNING: preposterous TOD clock time
+[   1.6437496] WARNING: using filesystem time
+[   1.6574742] WARNING: CHECK AND RESET THE DATE!

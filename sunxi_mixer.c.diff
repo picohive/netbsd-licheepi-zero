@@ -2,10 +2,110 @@ Index: sys/arch/arm/sunxi/sunxi_mixer.c
 ===================================================================
 RCS file: /cvsroot/src/sys/arch/arm/sunxi/sunxi_mixer.c,v
 retrieving revision 1.19
-diff -r1.19 sunxi_mixer.c
-55a56,58
-> #ifdef SOC_SUN8I_V3S
-> #define	SUNXI_MIXER_FREQ	150000000
-> #else
-56a60
-> #endif
+diff -u -p -r1.19 sunxi_mixer.c
+--- sys/arch/arm/sunxi/sunxi_mixer.c	28 Jun 2022 05:19:03 -0000	1.19
++++ sys/arch/arm/sunxi/sunxi_mixer.c	27 Feb 2026 11:23:38 -0000
+@@ -53,8 +53,6 @@ __KERNEL_RCSID(0, "$NetBSD: sunxi_mixer.
+ #define	MIXER_CURSOR_MAXWIDTH	256
+ #define	MIXER_CURSOR_MAXHEIGHT	256
+ 
+-#define	SUNXI_MIXER_FREQ	432000000
+-
+ #define	GLB_BASE		0x00000
+ #define	BLD_BASE		0x01000
+ #define	OVL_BASE(n)		(0x02000 + (n) * 0x1000)
+@@ -187,29 +185,41 @@ enum {
+ 
+ struct sunxi_mixer_compat_data {
+ 	uint8_t ovl_ui_count;
++	uint8_t ovl_v_count;
+ 	uint8_t mixer_index;
++	uint32_t mixer_freq;
++};
++
++struct sunxi_mixer_compat_data sun8i_v3s_de2_mixer_data = {
++	.ovl_ui_count = 1,
++	.ovl_v_count = 2,
++	.mixer_index = 0,
++	.mixer_freq = 150000000,
+ };
+ 
+-struct sunxi_mixer_compat_data mixer0_data = {
++struct sunxi_mixer_compat_data sun50i_a64_de2_mixer0_data = {
+ 	.ovl_ui_count = 3,
++	.ovl_v_count = 1,
+ 	.mixer_index = 0,
++	.mixer_freq = 432000000,
+ };
+ 
+-struct sunxi_mixer_compat_data mixer1_data = {
++struct sunxi_mixer_compat_data sun50i_a64_de2_mixer1_data = {
+ 	.ovl_ui_count = 1,
++	.ovl_v_count = 1,
+ 	.mixer_index = 1,
++	.mixer_freq = 432000000,
+ };
+ 
+ static const struct device_compatible_entry compat_data[] = {
+ 	{ .compat = "allwinner,sun8i-h3-de2-mixer-0",
+-	  .data = &mixer0_data },
++	  .data = &sun50i_a64_de2_mixer0_data },
+ 	{ .compat = "allwinner,sun8i-v3s-de2-mixer",
+-	  .data = &mixer0_data },
++	  .data = &sun8i_v3s_de2_mixer_data },
+ 	{ .compat = "allwinner,sun50i-a64-de2-mixer-0",
+-	  .data = &mixer0_data },
++	  .data = &sun50i_a64_de2_mixer0_data },
+ 	{ .compat = "allwinner,sun50i-a64-de2-mixer-1",
+-	  .data = &mixer1_data },
+-
++	  .data = &sun50i_a64_de2_mixer1_data },
+ 	DEVICE_COMPAT_EOL
+ };
+ 
+@@ -232,6 +242,7 @@ struct sunxi_mixer_softc {
+ 	int			sc_phandle;
+ 
+ 	u_int			sc_ovl_ui_count;
++	u_int			sc_ovl_v_count;
+ 
+ 	struct sunxi_mixer_crtc	sc_crtc;
+ 	struct sunxi_mixer_plane sc_overlay;
+@@ -255,9 +266,9 @@ struct sunxi_mixer_softc {
+ 	bus_space_write_4((sc)->sc_bst, (sc)->sc_bsh, OVL_BASE(0) + (reg), (val))
+ 
+ #define	OVL_UI_READ(sc, n, reg)				\
+-	bus_space_read_4((sc)->sc_bst, (sc)->sc_bsh, OVL_BASE((n) + 1) + (reg))
++	bus_space_read_4((sc)->sc_bst, (sc)->sc_bsh, OVL_BASE((n) + sc->sc_ovl_v_count) + (reg))
+ #define	OVL_UI_WRITE(sc, n, reg, val)			\
+-	bus_space_write_4((sc)->sc_bst, (sc)->sc_bsh, OVL_BASE((n) + 1) + (reg), (val))
++	bus_space_write_4((sc)->sc_bst, (sc)->sc_bsh, OVL_BASE((n) + sc->sc_ovl_v_count) + (reg), (val))
+ 
+ #define	VSU_READ(sc, reg)				\
+ 	bus_space_read_4((sc)->sc_bst, (sc)->sc_bsh, VSU_BASE + (reg))
+@@ -514,7 +525,7 @@ sunxi_mixer_mode_set(struct drm_crtc *cr
+ 	/* Route channel 1 to pipe 0 */
+ 	val = BLD_READ(sc, BLD_CH_RTCTL);
+ 	val &= ~BLD_CH_RTCTL_P0;
+-	val |= __SHIFTIN(1, BLD_CH_RTCTL_P0);
++	val |= __SHIFTIN(sc->sc_ovl_v_count, BLD_CH_RTCTL_P0);
+ 	BLD_WRITE(sc, BLD_CH_RTCTL, val);
+ 	/* Set blender output size */
+ 	BLD_WRITE(sc, BLD_SIZE, size);
+@@ -1292,7 +1303,7 @@ sunxi_mixer_attach(device_t parent, devi
+ 
+ 	clk_mod = fdtbus_clock_get(phandle, "mod");
+ 	if (clk_mod == NULL ||
+-	    clk_set_rate(clk_mod, SUNXI_MIXER_FREQ) != 0 ||
++	    clk_set_rate(clk_mod, cd->mixer_freq) != 0 ||
+ 	    clk_enable(clk_mod) != 0) {
+ 		aprint_error(": couldn't enable mod clock\n");
+ 		return;
+@@ -1306,6 +1317,7 @@ sunxi_mixer_attach(device_t parent, devi
+ 	}
+ 	sc->sc_phandle = faa->faa_phandle;
+ 	sc->sc_ovl_ui_count = cd->ovl_ui_count;
++	sc->sc_ovl_v_count = cd->ovl_v_count;
+ 
+ 	aprint_naive("\n");
+ 	aprint_normal(": Display Engine Mixer\n");

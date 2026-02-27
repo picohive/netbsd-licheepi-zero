@@ -1,0 +1,169 @@
+Index: sys/dev/fdt/fdt_panel.c
+===================================================================
+RCS file: /cvsroot/src/sys/dev/fdt/fdt_panel.c,v
+retrieving revision 1.6
+diff -u -p -r1.6 fdt_panel.c
+--- sys/dev/fdt/fdt_panel.c	19 Dec 2021 11:01:10 -0000	1.6
++++ sys/dev/fdt/fdt_panel.c	27 Feb 2026 10:00:55 -0000
+@@ -37,11 +37,13 @@ __KERNEL_RCSID(0, "$NetBSD: fdt_panel.c,
+ 
+ #include <dev/fdt/fdt_port.h>
+ #include <dev/fdt/fdtvar.h>
++#include <dev/fdt/display_timing.h>
+ 
+ #include <dev/i2c/ddcvar.h>
+ 
+ #include <drm/drm_drv.h>
+ #include <drm/drm_edid.h>
++#include <drm/drm_modes.h>
+ #include <drm/drm_panel.h>
+ 
+ static const struct device_compatible_entry compat_data[] = {
+@@ -50,10 +52,20 @@ static const struct device_compatible_en
+ 	DEVICE_COMPAT_EOL
+ };
+ 
++struct panel_desc {
++	struct display_timing timing;
++	int bpc;
++	int width;
++	int height;
++	uint32_t mode_flags;
++	uint32_t bus_flags;
++};
++
+ struct panel_fdt_softc {
+ 	device_t			sc_dev;
+ 	struct fdt_device_ports		sc_ports;
+ 	struct drm_panel		sc_panel;
++	struct panel_desc		sc_desc;
+ 	struct fdtbus_gpio_pin *	sc_enable;
+ 	struct fdtbus_regulator *	sc_regulator;
+ };
+@@ -61,7 +73,7 @@ struct panel_fdt_softc {
+ #define	to_panel_fdt(x)	container_of(x, struct panel_fdt_softc, sc_panel)
+ 
+ static int
+-panel_fdt_enable(struct drm_panel * panel)
++panel_fdt_enable(struct drm_panel *panel)
+ {
+ 	struct panel_fdt_softc * const sc = to_panel_fdt(panel);
+ 
+@@ -76,7 +88,50 @@ panel_fdt_enable(struct drm_panel * pane
+ }
+ 
+ static int
+-panel_fdt_prepare(struct drm_panel * panel)
++panel_fdt_get_modes(struct drm_panel *panel, struct drm_connector *connector)
++{
++	struct panel_fdt_softc * const sc = to_panel_fdt(panel);
++	struct drm_display_mode *mode;
++
++	if (connector->connector_type != DRM_MODE_CONNECTOR_DPI)
++		return 0;
++
++	mode = drm_mode_create(connector->dev);
++	if (!mode) {
++		device_printf(sc->sc_dev, "failed to add mode %ux%u\n",
++		    sc->sc_desc.timing.hactive, sc->sc_desc.timing.vactive);
++		return 0;
++	}
++
++	mode->hdisplay = sc->sc_desc.timing.hactive;
++	mode->hsync_start = mode->hdisplay + sc->sc_desc.timing.hfront_porch;
++	mode->hsync_end = mode->hsync_start + sc->sc_desc.timing.hsync_len;
++	mode->htotal = mode->hsync_end + sc->sc_desc.timing.hback_porch;
++
++	mode->vdisplay = sc->sc_desc.timing.vactive;
++	mode->vsync_start = mode->vdisplay + sc->sc_desc.timing.vfront_porch;
++	mode->vsync_end = mode->vsync_start + sc->sc_desc.timing.vsync_len;
++	mode->vtotal = mode->vsync_end + sc->sc_desc.timing.vback_porch;
++
++	mode->clock = sc->sc_desc.timing.clock_freq / 1000;
++
++	mode->flags = sc->sc_desc.mode_flags;
++
++	mode->type |= DRM_MODE_TYPE_DRIVER | DRM_MODE_TYPE_PREFERRED;
++
++	drm_mode_set_name(mode);
++	drm_mode_probed_add(connector, mode);
++
++	connector->display_info.bpc = sc->sc_desc.bpc;
++	connector->display_info.width_mm = sc->sc_desc.width;
++	connector->display_info.height_mm = sc->sc_desc.height;
++	connector->display_info.bus_flags = sc->sc_desc.bus_flags;
++
++	return 1;
++}
++
++static int
++panel_fdt_prepare(struct drm_panel *panel)
+ {
+ 	struct panel_fdt_softc * const sc = to_panel_fdt(panel);
+ 
+@@ -95,7 +150,7 @@ panel_fdt_prepare(struct drm_panel * pan
+ static const struct drm_panel_funcs panel_fdt_funcs = {
+ 	.disable = NULL,
+ 	.enable = panel_fdt_enable,
+-	.get_modes = NULL,
++	.get_modes = panel_fdt_get_modes,
+ 	.get_timings = NULL,
+ 	.prepare = panel_fdt_prepare,
+ 	.unprepare = NULL,
+@@ -137,20 +192,52 @@ panel_fdt_attach(device_t parent, device
+ 	struct panel_fdt_softc * const sc = device_private(self);
+ 	struct fdt_attach_args * const faa = aux;
+ 	const int phandle = faa->faa_phandle;
++	int child, timing_node;
++	char buf[16];
++	uint32_t val;
+ 
+ 	aprint_naive("\n");
+ 	aprint_normal(": panel\n");
+ 
+ 	sc->sc_dev = self;
+ 
+-	/* required for "simple-panel" */
+-        sc->sc_regulator = fdtbus_regulator_acquire(phandle, "power-supply");
+-        if (sc->sc_regulator == NULL) {
+-		aprint_error_dev(self, "regulator not found\n");
++	if (of_getprop_uint32(phandle, "bpc", &sc->sc_desc.bpc) ||
++	    of_getprop_uint32(phandle, "width-mm", &sc->sc_desc.width) ||
++	    of_getprop_uint32(phandle, "height-mm", &sc->sc_desc.height)) {
++		aprint_error(": missing bpc/width-mm/height-mm properties\n");
+ 		return;
+ 	}
++	for (child = OF_child(phandle); child; child = OF_peer(child)) {
++		if (OF_getprop(child, "name", buf, sizeof(buf)) <= 0)
++			continue;
++		if (strcmp(buf, "display-timings") != 0)
++			continue;
++
++		timing_node = OF_child(child);
++		if (display_timing_parse(timing_node, &sc->sc_desc.timing) != 0) {
++			aprint_error(": failed to parse display-timings\n");
++			return;
++		}
++		if (sc->sc_desc.timing.clock_freq == 0) {
++			aprint_error(": missing display-timings\n");
++			return;
++		}
++		if (of_getprop_uint32(timing_node, "hsync-active", &val) == 0)
++			sc->sc_desc.mode_flags |=
++			    (val ? DRM_MODE_FLAG_PHSYNC : DRM_MODE_FLAG_NHSYNC);
++		if (of_getprop_uint32(timing_node, "vsync-active", &val) == 0)
++			sc->sc_desc.mode_flags |=
++			    (val ? DRM_MODE_FLAG_PVSYNC : DRM_MODE_FLAG_NVSYNC);
++		if (of_getprop_uint32(timing_node, "de-active", &val) == 0)
++			sc->sc_desc.bus_flags |=
++			    (val ? DRM_BUS_FLAG_DE_HIGH : DRM_BUS_FLAG_DE_LOW);
++		if (of_getprop_uint32(timing_node, "pixelclk-active", &val) == 0)
++			sc->sc_desc.bus_flags |=
++			    (val ? DRM_BUS_FLAG_PIXDATA_DRIVE_POSEDGE : DRM_BUS_FLAG_PIXDATA_DRIVE_NEGEDGE);
++	}
+ 
+ 	/* optional for "simple-panel" */
++	sc->sc_regulator = fdtbus_regulator_acquire(phandle, "power-supply");
+ 	sc->sc_enable = fdtbus_gpio_acquire_index(phandle,
+ 	    "enable-gpios", 0, GPIO_PIN_OUTPUT);
+ 

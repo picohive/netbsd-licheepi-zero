@@ -17,10 +17,15 @@
 * /usr/src/sys/arch/arm/sunxi/sunxi_pwm.c
 * /usr/src/sys/arch/arm/sunxi/sunxi_usbphy.c
 * /usr/src/sys/arch/evbarm/conf/LICHEEPI_ZERO
+* /usr/src/sys/dev/fdt/fdt_panel.c
+
+### Test parallel RGB panel with sunxidrm
+* cd /usr/pkgsrc/wip/u-boot-licheepi-zero ; make
+* dd if=u-boot-sunxi-with-spl.bin of=/dev/rld0d bs=1k seek=8 conv=sync
+* mount /dev/rld0e /mnt ; rm /mnt/dtb/sun8i-v3s-licheepi-zero.dtb
 
 ### Build the minimal kernel
 ./build.sh -U -u -O /usr/builds/obj.earmv7hf -T /usr/builds/tool.earmv7hf -j2 -m evbarm -a earmv7hf kernel=LICHEEPI_ZERO
 
 ### TODO
-* Parallel RGB panel with sunxidrm support
 * RTL8723BS WiFi/Bluetooth support

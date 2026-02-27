@@ -2,11 +2,20 @@ Index: sys/arch/arm/sunxi/sunxi_pwm.c
 ===================================================================
 RCS file: /cvsroot/src/sys/arch/arm/sunxi/sunxi_pwm.c,v
 retrieving revision 1.7
-diff -r1.7 sunxi_pwm.c
-58c58,59
-< 	PWM_A64 = 1,
----
-> 	PWM_A20 = 1,
-> 	PWM_A64,
-61a63
-> 	{ .compat = "allwinner,sun7i-a20-pwm",	.value = PWM_A20 },
+diff -u -p -r1.7 sunxi_pwm.c
+--- sys/arch/arm/sunxi/sunxi_pwm.c	27 Jan 2021 03:10:20 -0000	1.7
++++ sys/arch/arm/sunxi/sunxi_pwm.c	27 Feb 2026 11:25:36 -0000
+@@ -55,10 +55,12 @@ __KERNEL_RCSID(1, "$NetBSD: sunxi_pwm.c,
+ #define	 PWM_CH0_ENTIRE_ACT_CYS	__BITS(15,0)
+ 
+ enum sunxi_pwm_type {
+-	PWM_A64 = 1,
++	PWM_A20 = 1,
++	PWM_A64,
+ };
+ 
+ static const struct device_compatible_entry compat_data[] = {
++	{ .compat = "allwinner,sun7i-a20-pwm",	.value = PWM_A20 },
+ 	{ .compat = "allwinner,sun50i-a64-pwm",	.value = PWM_A64 },
+ 	DEVICE_COMPAT_EOL
+ };

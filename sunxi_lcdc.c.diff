@@ -1,0 +1,517 @@
+Index: sys/arch/arm/sunxi/sunxi_lcdc.c
+===================================================================
+RCS file: /cvsroot/src/sys/arch/arm/sunxi/sunxi_lcdc.c,v
+retrieving revision 1.15
+diff -u -p -r1.15 sunxi_lcdc.c
+--- sys/arch/arm/sunxi/sunxi_lcdc.c	28 Jun 2022 05:19:03 -0000	1.15
++++ sys/arch/arm/sunxi/sunxi_lcdc.c	27 Feb 2026 11:18:53 -0000
+@@ -1,6 +1,7 @@
+ /* $NetBSD: sunxi_lcdc.c,v 1.15 2022/06/28 05:19:03 skrll Exp $ */
+ 
+ /*-
++ * Copyright (c) 2026 Rui-Xiang Guo
+  * Copyright (c) 2019 Jared D. McNeill <jmcneill@invisible.ca>
+  * All rights reserved.
+  *
+@@ -37,17 +38,22 @@ __KERNEL_RCSID(0, "$NetBSD: sunxi_lcdc.c
+ #include <sys/kernel.h>
+ #include <sys/systm.h>
+ 
++#include <dev/clk/clk_backend.h>
++
+ #include <dev/fdt/fdt_port.h>
+ #include <dev/fdt/fdtvar.h>
+ 
+ #include <arm/sunxi/sunxi_drm.h>
+ 
++#include <drm/drm_atomic_state_helper.h>
+ #include <drm/drm_crtc_helper.h>
+ #include <drm/drm_drv.h>
++#include <drm/drm_panel.h>
++#include <drm/drm_probe_helper.h>
+ #include <drm/drm_vblank.h>
+ 
+ #define	TCON_GCTL_REG		0x000
+-#define	 TCON_GCTL_TCON_EN			__BIT(31)
++#define	 TCON_GCTL_EN				__BIT(31)
+ #define	 TCON_GCTL_GAMMA_EN			__BIT(30)
+ #define	 TCON_GCTL_IO_MAP_SEL			__BIT(0)
+ #define	TCON_GINT0_REG		0x004
+@@ -58,12 +64,21 @@ __KERNEL_RCSID(0, "$NetBSD: sunxi_lcdc.c
+ #define	TCON_GINT1_REG		0x008
+ #define	 TCON_GINT1_TCON1_LINE_INT_NUM		__BITS(11,0)
+ 
++#define	TCON0_FRM_CTL_REG	0x010
++#define	 TCON0_FRM_CTL_EN			__BIT(31)
++#define	TCON0_FRM_SEED_REG(n)	(0x014 + ((n) * 0x04))
++#define	 TCON0_FRM_SEED_VALUE			__BITS(24, 0)
++#define	TCON0_FRM_TAB_REG(n)	(0x02C + ((n) * 0x04))
++
+ #define	TCON0_CTL_REG		0x040
+-#define	 TCON0_CTL_TCON0_EN			__BIT(31)
++#define	 TCON0_CTL_EN				__BIT(31)
+ #define	 TCON0_CTL_START_DELAY			__BITS(8,4)
+-#define	 TCON0_CTL_TCON0_SRC_SEL		__BITS(2,0)
++#define	 TCON0_CTL_SRC_SEL			__BITS(2,0)
+ #define	TCON0_DCLK_REG		0x044
+-#define	 TCON0_DCLK_EN				__BITS(31,28)
++#define	 TCON0_DCLK_EN				__BIT(31)
++#define	 TCON0_DCLK1_EN				__BIT(30)
++#define	 TCON0_DCLK2_EN				__BIT(29)
++#define	 TCON0_DCLKM2_EN			__BIT(28)
+ #define	 TCON0_DCLK_DIV				__BITS(6,0)
+ #define	TCON0_BASIC0_REG	0x048
+ #define	TCON0_BASIC1_REG	0x04c
+@@ -80,9 +95,9 @@ __KERNEL_RCSID(0, "$NetBSD: sunxi_lcdc.c
+ #define	TCON0_IO_TRI_REG	0x08c
+ 
+ #define	TCON1_CTL_REG		0x090
+-#define	 TCON1_CTL_TCON1_EN			__BIT(31)
++#define	 TCON1_CTL_EN				__BIT(31)
+ #define	 TCON1_CTL_START_DELAY			__BITS(8,4)
+-#define	 TCON1_CTL_TCON1_SRC_SEL		__BITS(1,0)
++#define	 TCON1_CTL_SRC_SEL			__BITS(1,0)
+ #define	TCON1_BASIC0_REG	0x094
+ #define	TCON1_BASIC1_REG	0x098
+ #define	TCON1_BASIC2_REG	0x09c
+@@ -107,6 +122,55 @@ enum tcon_type {
+ 	TYPE_TCON1,
+ };
+ 
++enum {
++	FRM_PIXEL_SEED_R = 0,
++	FRM_PIXEL_SEED_G,
++	FRM_PIXEL_SEED_B,
++	FRM_LINE_SEED_R,
++	FRM_LINE_SEED_G,
++	FRM_LINE_SEED_B,
++	NFRM_SEED
++};
++
++enum {
++	FRM_TAB0 = 0,
++	FRM_TAB1,
++	FRM_TAB2,
++	FRM_TAB3,
++	NFRM_TAB
++};
++
++static const uint32_t frm_dither_table[NFRM_TAB] = {
++	0x01010000,
++	0x15151111,
++	0x57575555,
++	0x7f7f7777
++};
++
++static struct clk *sunxi_lcdc_dclk_decode(device_t, int, const void *, size_t);
++
++static const struct fdtbus_clock_controller_func sunxi_lcdc_dclk_fdt_funcs = {
++	.decode = sunxi_lcdc_dclk_decode
++};
++
++static struct clk *sunxi_lcdc_dclk_get(void *, const char *);
++static void sunxi_lcdc_dclk_put(void *, struct clk *);
++static u_int sunxi_lcdc_dclk_get_rate(void *, struct clk *);
++static int sunxi_lcdc_dclk_set_rate(void *, struct clk *, u_int);
++static int sunxi_lcdc_dclk_enable(void *, struct clk *);
++static int sunxi_lcdc_dclk_disable(void *, struct clk *);
++static struct clk *sunxi_lcdc_dclk_get_parent(void *, struct clk *);
++
++static const struct clk_funcs sunxi_lcdc_dclk_funcs = {
++	.get = sunxi_lcdc_dclk_get,
++	.put = sunxi_lcdc_dclk_put,
++	.get_rate = sunxi_lcdc_dclk_get_rate,
++	.set_rate = sunxi_lcdc_dclk_set_rate,
++	.enable = sunxi_lcdc_dclk_enable,
++	.disable = sunxi_lcdc_dclk_disable,
++	.get_parent = sunxi_lcdc_dclk_get_parent,
++};
++
+ static const struct device_compatible_entry compat_data[] = {
+ 	{ .compat = "allwinner,sun8i-h3-tcon-tv",	.value = TYPE_TCON1 },
+ 	{ .compat = "allwinner,sun8i-v3s-tcon",		.value = TYPE_TCON0 },
+@@ -123,6 +187,16 @@ struct sunxi_lcdc_encoder {
+ 	struct drm_display_mode	curmode;
+ };
+ 
++struct sunxi_lcdc_dclk {
++	struct clk base;
++	struct clk *parent;
++	u_int div_min;
++	enum {
++		TYPE_FIXED,
++		TYPE_OPTIM,
++	} div_type;
++};
++
+ struct sunxi_lcdc_softc {
+ 	device_t		sc_dev;
+ 	bus_space_tag_t		sc_bst;
+@@ -132,9 +206,12 @@ struct sunxi_lcdc_softc {
+ 	enum tcon_type		sc_type;
+ 
+ 	struct clk		*sc_clk_ch[2];
++	struct clk_domain sc_clkdom;
++	struct sunxi_lcdc_dclk sc_dclk;
+ 
+ 	struct sunxi_lcdc_encoder sc_encoder;
+ 	struct drm_connector	sc_connector;
++	struct drm_panel	*sc_panel;
+ 
+ 	struct fdt_device_ports	sc_ports;
+ 
+@@ -183,10 +260,42 @@ sunxi_lcdc_tcon0_prepare(struct drm_enco
+ {
+ 	struct sunxi_lcdc_encoder *lcdc_encoder = to_sunxi_lcdc_encoder(encoder);
+ 	struct sunxi_lcdc_softc * const sc = lcdc_encoder->sc;
++	struct drm_display_info *info = &sc->sc_connector.display_info;
++	struct drm_display_mode *mode = &lcdc_encoder->curmode;
+ 	uint32_t val;
++	int n;
++
++	for (n = 0; n < NFRM_SEED; n++) {
++		val = 0x11111111;
++		val &= TCON0_FRM_SEED_VALUE;
++		TCON_WRITE(sc, TCON0_FRM_SEED_REG(n), val);
++	}
++
++	for (n = 0; n < NFRM_TAB; n++)
++		TCON_WRITE(sc, TCON0_FRM_TAB_REG(n), frm_dither_table[n]);
++
++	if (info->bpc == 6) {
++		val = TCON_READ(sc, TCON0_FRM_CTL_REG);
++		val |= TCON0_FRM_CTL_EN;
++		TCON_WRITE(sc, TCON0_FRM_CTL_REG, val);
++	}
++
++	val = TCON_READ(sc, TCON0_IO_POL_REG);
++	val &= ~(TCON0_IO_POL_IO3_INV|TCON0_IO_POL_IO2_INV|
++		 TCON0_IO_POL_IO1_INV|TCON0_IO_POL_IO0_INV|
++		 TCON0_IO_POL_DATA_INV);
++	if (mode->flags & DRM_MODE_FLAG_PHSYNC)
++		val |= TCON0_IO_POL_IO1_INV;
++	if (mode->flags & DRM_MODE_FLAG_PVSYNC)
++		val |= TCON0_IO_POL_IO0_INV;
++	if (info->bus_flags & DRM_BUS_FLAG_DE_LOW)
++		val |= TCON0_IO_POL_IO3_INV;
++	if (info->bus_flags & DRM_BUS_FLAG_PIXDATA_DRIVE_NEGEDGE)
++		val |= TCON0_IO_POL_IO2_INV;
++	TCON_WRITE(sc, TCON0_IO_POL_REG, val);
+ 
+ 	val = TCON_READ(sc, TCON_GCTL_REG);
+-	val |= TCON_GCTL_TCON_EN;
++	val |= TCON_GCTL_EN;
+ 	val &= ~TCON_GCTL_IO_MAP_SEL;
+ 	TCON_WRITE(sc, TCON_GCTL_REG, val);
+ 
+@@ -201,7 +310,7 @@ sunxi_lcdc_tcon1_prepare(struct drm_enco
+ 	uint32_t val;
+ 
+ 	val = TCON_READ(sc, TCON_GCTL_REG);
+-	val |= TCON_GCTL_TCON_EN;
++	val |= TCON_GCTL_EN;
+ 	TCON_WRITE(sc, TCON_GCTL_REG, val);
+ 
+ 	TCON_WRITE(sc, TCON1_IO_POL_REG, 0);
+@@ -225,7 +334,7 @@ sunxi_lcdc_tcon0_commit(struct drm_encod
+ 	const u_int vblank_len = (mode->crtc_vtotal - mode->crtc_vdisplay) >> interlace_p;
+ 	const u_int start_delay = uimin(vblank_len, 30);
+ 
+-	val = TCON0_CTL_TCON0_EN |
++	val = TCON0_CTL_EN |
+ 	      __SHIFTIN(start_delay, TCON0_CTL_START_DELAY);
+ 	TCON_WRITE(sc, TCON0_CTL_REG, val);
+ 
+@@ -234,30 +343,26 @@ sunxi_lcdc_tcon0_commit(struct drm_encod
+ 	TCON_WRITE(sc, TCON0_BASIC2_REG, ((mode->crtc_vtotal * 2) << 16) | (vbp - 1));
+ 	TCON_WRITE(sc, TCON0_BASIC3_REG, ((hspw - 1) << 16) | (vspw - 1));
+ 
+-	val = TCON_READ(sc, TCON0_IO_POL_REG);
+-	val &= ~(TCON0_IO_POL_IO3_INV|TCON0_IO_POL_IO2_INV|
+-		 TCON0_IO_POL_IO1_INV|TCON0_IO_POL_IO0_INV|
+-		 TCON0_IO_POL_DATA_INV);
+-	if ((mode->flags & DRM_MODE_FLAG_PHSYNC) == 0)
+-		val |= TCON0_IO_POL_IO1_INV;
+-	if ((mode->flags & DRM_MODE_FLAG_PVSYNC) == 0)
+-		val |= TCON0_IO_POL_IO0_INV;
+-	TCON_WRITE(sc, TCON0_IO_POL_REG, val);
++	switch (encoder->encoder_type) {
++	case DRM_MODE_ENCODER_DPI:
++		sc->sc_dclk.div_min = 1;
++		sc->sc_dclk.div_type = TYPE_OPTIM;
++		break;
++	default:
++		device_printf(sc->sc_dev, "encoder type is not supported\n");
++		return;
++	}
+ 
+-	if (sc->sc_clk_ch[0] != NULL) {
+-		error = clk_set_rate(sc->sc_clk_ch[0], mode->crtc_clock * 1000);
+-		if (error != 0) {
+-			device_printf(sc->sc_dev, "failed to set CH0 PLL rate to %u Hz: %d\n",
+-			    mode->crtc_clock * 1000, error);
+-			return;
+-		}
+-		error = clk_enable(sc->sc_clk_ch[0]);
+-		if (error != 0) {
+-			device_printf(sc->sc_dev, "failed to enable CH0 PLL: %d\n", error);
+-			return;
+-		}
+-	} else {
+-		device_printf(sc->sc_dev, "no CH0 PLL configured\n");
++	error = clk_set_rate(&sc->sc_dclk.base, mode->crtc_clock * 1000);
++	if (error != 0) {
++		device_printf(sc->sc_dev, "failed to find params for dot clock %u Hz: %d\n",
++		    mode->crtc_clock * 1000, error);
++		return;
++	}
++	error = clk_enable(&sc->sc_dclk.base);
++	if (error != 0) {
++		device_printf(sc->sc_dev, "failed to enable dot clock: %d\n", error);
++		return;
+ 	}
+ }
+ 
+@@ -278,7 +383,7 @@ sunxi_lcdc_tcon1_commit(struct drm_encod
+ 	const u_int vblank_len = ((mode->crtc_vtotal - mode->crtc_vdisplay) >> interlace_p) - 2;
+ 	const u_int start_delay = uimin(vblank_len, 30);
+ 
+-	val = TCON1_CTL_TCON1_EN |
++	val = TCON1_CTL_EN |
+ 	      __SHIFTIN(start_delay, TCON1_CTL_START_DELAY);
+ 	TCON_WRITE(sc, TCON1_CTL_REG, val);
+ 
+@@ -325,6 +430,41 @@ static const struct drm_encoder_helper_f
+ 	.mode_set = sunxi_lcdc_tcon_mode_set,
+ };
+ 
++static enum drm_connector_status
++sunxi_connector_detect(struct drm_connector *connector, bool force)
++{
++	return connector_status_connected;
++}
++
++static void
++sunxi_connector_destroy(struct drm_connector *connector)
++{
++	drm_connector_cleanup(connector);
++}
++
++static const struct drm_connector_funcs sunxi_connector_funcs = {
++	.dpms = drm_helper_connector_dpms,
++	.detect = sunxi_connector_detect,
++	.fill_modes = drm_helper_probe_single_connector_modes,
++	.destroy = sunxi_connector_destroy,
++	.reset = drm_atomic_helper_connector_reset,
++	.atomic_duplicate_state = drm_atomic_helper_connector_duplicate_state,
++	.atomic_destroy_state = drm_atomic_helper_connector_destroy_state,
++};
++
++static int sunxi_connector_get_modes(struct drm_connector *connector)
++{
++	struct sunxi_lcdc_softc *sc;
++
++	sc = container_of(connector, struct sunxi_lcdc_softc, sc_connector);
++
++	return drm_panel_get_modes(sc->sc_panel, connector);
++}
++
++static const struct drm_connector_helper_funcs sunxi_connector_helper_funcs = {
++	.get_modes = sunxi_connector_get_modes,
++};
++
+ static int
+ sunxi_lcdc_encoder_mode(struct fdt_endpoint *out_ep)
+ {
+@@ -337,6 +477,8 @@ sunxi_lcdc_encoder_mode(struct fdt_endpo
+ 	case EP_DRM_BRIDGE:
+ 		return DRM_MODE_ENCODER_TMDS;
+ 	case EP_DRM_PANEL:
++		return DRM_MODE_ENCODER_DPI;
++	case EP_PANEL:
+ 		return DRM_MODE_ENCODER_LVDS;
+ 	default:
+ 		return DRM_MODE_ENCODER_NONE;
+@@ -415,6 +557,19 @@ sunxi_lcdc_ep_activate(device_t dev, str
+ 		    sunxi_lcdc_encoder_mode(out_ep), NULL);
+ 		drm_encoder_helper_add(&sc->sc_encoder.base, &sunxi_lcdc_tcon0_helper_funcs);
+ 
++		drm_connector_init(crtc->dev, &sc->sc_connector, &sunxi_connector_funcs,
++		    DRM_MODE_CONNECTOR_DPI);
++		drm_connector_helper_add(&sc->sc_connector, &sunxi_connector_helper_funcs);
++		drm_connector_attach_encoder(&sc->sc_connector, &sc->sc_encoder.base);
++		drm_connector_register(&sc->sc_connector);
++
++		/* attach panel */
++		struct fdt_endpoint *remote_ep = fdt_endpoint_remote(out_ep);
++		if (remote_ep != NULL) {
++			sc->sc_panel = fdt_endpoint_get_data(remote_ep);
++			drm_panel_attach(sc->sc_panel, &sc->sc_connector);
++		}
++
+ 		sunxi_lcdc_setup_vblank(sc);
+ 
+ 		return fdt_endpoint_activate(out_ep, activate);
+@@ -483,6 +638,7 @@ sunxi_lcdc_attach(device_t parent, devic
+ 	struct clk *clk;
+ 	bus_addr_t addr;
+ 	bus_size_t size;
++	int error;
+ 	void *ih;
+ 
+ 	if (fdtbus_get_reg(phandle, 0, &addr, &size) != 0) {
+@@ -522,6 +678,30 @@ sunxi_lcdc_attach(device_t parent, devic
+ 	switch (sc->sc_type) {
+ 	case TYPE_TCON0:
+ 		aprint_normal(": TCON0\n");
++		if (sc->sc_clk_ch[0] == NULL) {
++			aprint_error_dev(self, "no CH0 PLL configured\n");
++			return;
++		}
++		error = clk_enable(sc->sc_clk_ch[0]);
++		if (error != 0) {
++			aprint_error_dev(self, "failed to enable CH0 PLL: %d\n",
++			    error);
++			return;
++		}
++
++		const char *clkname = fdtbus_get_string(phandle, "clock-output-names");
++		if (clkname == NULL)
++			clkname = faa->faa_name;
++
++		sc->sc_clkdom.name = device_xname(self);
++		sc->sc_clkdom.funcs = &sunxi_lcdc_dclk_funcs;
++		sc->sc_clkdom.priv = sc;
++		sc->sc_dclk.base.domain = &sc->sc_clkdom;
++		sc->sc_dclk.base.name = kmem_asprintf("%s", clkname);
++		sc->sc_dclk.parent = sc->sc_clk_ch[0];
++		clk_attach(&sc->sc_dclk.base);
++		fdtbus_register_clock_controller(self, phandle, &sunxi_lcdc_dclk_fdt_funcs);
++		fdtbus_pinctrl_set_config(sc->sc_phandle, "default");
+ 		break;
+ 	case TYPE_TCON1:
+ 		aprint_normal(": TCON1\n");
+@@ -544,3 +724,123 @@ sunxi_lcdc_attach(device_t parent, devic
+ 
+ CFATTACH_DECL_NEW(sunxi_lcdc, sizeof(struct sunxi_lcdc_softc),
+ 	sunxi_lcdc_match, sunxi_lcdc_attach, NULL, NULL);
++
++static struct clk *
++sunxi_lcdc_dclk_decode(device_t dev, int cc_phandle, const void *data,
++		     size_t len)
++{
++	struct sunxi_lcdc_softc * const sc = device_private(dev);
++
++	if (len != 0)
++		return NULL;
++
++	return &sc->sc_dclk.base;
++}
++
++static struct clk *
++sunxi_lcdc_dclk_get(void *priv, const char *name)
++{
++	struct sunxi_lcdc_softc * const sc = priv;
++
++	if (strcmp(name, sc->sc_dclk.base.name) != 0)
++		return NULL;
++
++	return &sc->sc_dclk.base;
++}
++
++static void
++sunxi_lcdc_dclk_put(void *priv, struct clk *clk)
++{
++}
++
++static u_int
++sunxi_lcdc_dclk_get_rate(void *priv, struct clk *clk)
++{
++	struct sunxi_lcdc_softc * const sc = priv;
++	struct clk *clk_parent = clk_get_parent(clk);
++
++	const uint32_t val = TCON_READ(sc, TCON0_DCLK_REG);
++	const u_int div = __SHIFTOUT(val, TCON0_DCLK_DIV);
++	
++	if (div == 0)
++		return ERANGE;
++
++	return clk_get_rate(clk_parent) / div;
++}
++
++static int
++sunxi_lcdc_dclk_set_rate(void *priv, struct clk *clk, u_int rate)
++{
++	struct sunxi_lcdc_softc * const sc = priv;
++	struct clk *clk_parent = clk_get_parent(clk);
++	u_int parent_rate, try_rate;
++	u_int div, best_div;
++	int best_diff;
++	uint32_t val;
++
++	best_div = 0;
++	best_diff = INT_MAX;
++
++	parent_rate = clk_get_rate(clk_parent);
++	if (parent_rate == 0)
++		return ERANGE;
++
++	if (sc->sc_dclk.div_type == TYPE_FIXED)
++		best_div = sc->sc_dclk.div_min;
++	else {
++		for (div = sc->sc_dclk.div_min; div <= 127; div++) {
++			try_rate = parent_rate / div;
++			const int diff = abs(try_rate - rate);
++			if (diff < best_diff) {
++				best_diff = diff;
++				best_div = div;
++				if (diff == 0)
++					break;
++			}
++		}
++	}
++
++	if (best_div == 0)
++		return ERANGE;
++
++	val = TCON_READ(sc, TCON0_DCLK_REG);
++	val &= ~TCON0_DCLK_DIV;
++	val |= __SHIFTIN(best_div, TCON0_DCLK_DIV);
++	TCON_WRITE(sc, TCON0_DCLK_REG, val);
++
++	return 0;
++}
++
++static int
++sunxi_lcdc_dclk_enable(void *priv, struct clk *clk)
++{
++	struct sunxi_lcdc_softc * const sc = priv;
++	uint32_t val;
++
++	val = TCON_READ(sc, TCON0_DCLK_REG);
++	val |= TCON0_DCLK_EN;
++	TCON_WRITE(sc, TCON0_DCLK_REG, val);
++
++	return 0;
++}
++
++static int
++sunxi_lcdc_dclk_disable(void *priv, struct clk *clk)
++{
++	struct sunxi_lcdc_softc * const sc = priv;
++	uint32_t val;
++
++	val = TCON_READ(sc, TCON0_DCLK_REG);
++	val &= ~TCON0_DCLK_EN;
++	TCON_WRITE(sc, TCON0_DCLK_REG, val);
++
++	return 0;
++}
++
++static struct clk *
++sunxi_lcdc_dclk_get_parent(void *priv, struct clk *clk)
++{
++	struct sunxi_lcdc_softc * const sc = priv;
++
++	return sc->sc_dclk.parent;
++}
